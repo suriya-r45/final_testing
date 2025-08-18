@@ -310,7 +310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Enhanced Bill PDF generation with elegant styling
+  // Professional Bill PDF generation - Exact replica of sample bill
   app.get("/api/bills/:id/pdf", async (req, res) => {
     try {
       const bill = await storage.getBill(req.params.id);
@@ -318,19 +318,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Bill not found" });
       }
 
-      // Create PDF with enhanced settings
+      // Create PDF matching the sample bill format exactly
       const doc = new PDFDocument({ 
         size: 'A4', 
-        margin: 40,
+        margin: 30,
         info: {
-          Title: `Invoice ${bill.billNumber}`,
+          Title: `Tax Invoice ${bill.billNumber}`,
           Author: 'Palaniappa Jewellers',
           Subject: 'Tax Invoice',
-          Keywords: 'invoice, jewelry, tax'
         }
       });
       
-      const filename = `Invoice_${bill.billNumber}_${bill.customerName.replace(/\s+/g, '_')}.pdf`;
+      const filename = `TaxInvoice_${bill.billNumber}_${bill.customerName.replace(/\s+/g, '_')}.pdf`;
 
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
@@ -338,365 +337,272 @@ export async function registerRoutes(app: Express): Promise<Server> {
       doc.pipe(res);
 
       const pageWidth = doc.page.width;
-      const margin = 40;
-      const contentWidth = pageWidth - (margin * 2);
+      const pageHeight = doc.page.height;
+      const margin = 30;
+      let currentY = 50;
 
-      // Colors for styling
-      const primaryColor = '#000000';
-      const accentColor = '#666666';
-      const lightGray = '#F5F5F5';
-      const darkGray = '#333333';
-
-      // Helper function to add watermark
-      function addWatermark() {
-        doc.save();
-        doc.fillColor('#EEEEEE')
-           .fontSize(60)
-           .text('PALANIAPPA JEWELLERS', 0, 300, {
-             align: 'center',
-             width: pageWidth,
-             rotate: -45
-           });
-        doc.restore();
-      }
-
-      // Add elegant header background
-      doc.rect(0, 0, pageWidth, 140)
-         .fill('#F8F9FA');
-
-      // Add company logo if available
-      let logoY = 25;
+      // Add company logo (centered at top)
       try {
+        const logoSize = 60;
         doc.image('./attached_assets/1000284180_1755240849891_1755538055896.jpg', 
-                 pageWidth - 130, logoY, { width: 80, height: 80 });
+                 (pageWidth - logoSize) / 2, currentY, { width: logoSize, height: logoSize });
+        currentY += logoSize + 20;
       } catch (error) {
-        console.log('Logo not found, continuing without image');
+        // If no logo, add company name
+        doc.fontSize(16)
+           .font('Helvetica-Bold')
+           .text('PALANIAPPA', 0, currentY, { align: 'center', width: pageWidth });
+        currentY += 25;
       }
 
-      // Elegant company header
-      doc.fillColor(primaryColor)
-         .fontSize(28)
-         .font('Helvetica-Bold')
-         .text('PALANIAPPA JEWELLERS', margin, 35);
-
-      doc.fontSize(11)
-         .fillColor(accentColor)
-         .font('Helvetica')
-         .text('Premium Jewelry & Ornaments Since 2025', margin, 70)
-         .text('123 Jewelry Street, Chennai, Tamil Nadu - 600001', margin, 85)
-         .text('Phone: +91 95972 01554 | Email: jewelerypalaniappa@gmail.com', margin, 100)
-         .text('GSTIN: 33AAACT5712A124', margin, 115);
-
-      // Invoice title and details section
-      let currentY = 160;
-      
-      // Invoice header with background
-      doc.rect(margin, currentY, contentWidth, 35)
-         .fill(primaryColor);
-      
-      doc.fillColor('#FFFFFF')
-         .fontSize(18)
-         .font('Helvetica-Bold')
-         .text('TAX INVOICE', margin + 15, currentY + 10);
-
-      const invoiceDate = new Date(bill.createdAt!);
-      doc.fontSize(11)
-         .text(`Invoice No: ${bill.billNumber}`, pageWidth - 200, currentY + 8)
-         .text(`Date: ${invoiceDate.toLocaleDateString('en-IN')}`, pageWidth - 200, currentY + 22);
-
-      currentY += 55;
-
-      // Enhanced Customer and Company details with better spacing
-      const boxHeight = 120;
-      const boxWidth = (contentWidth - 20) / 2;
-      
-      // Company details box with shadow effect
-      doc.rect(margin, currentY, boxWidth, boxHeight)
-         .fill('#FFFFFF')
-         .stroke('#D0D0D0');
-      
-      // Company header
-      doc.fillColor(darkGray)
-         .rect(margin, currentY, boxWidth, 30)
-         .fill();
-      
-      doc.fillColor('#FFFFFF')
-         .fontSize(12)
-         .font('Helvetica-Bold')
-         .text('BILLED FROM', margin + 15, currentY + 10);
-
-      // Company details with proper spacing
-      doc.fontSize(11)
-         .font('Helvetica-Bold')
-         .fillColor(primaryColor)
-         .text('PALANIAPPA JEWELLERS', margin + 15, currentY + 42);
-         
+      // Customer copy header (top right)
       doc.fontSize(10)
          .font('Helvetica')
-         .fillColor(accentColor)
-         .text('Premium Jewelry & Ornaments', margin + 15, currentY + 58)
-         .text('123 Jewelry Street', margin + 15, currentY + 72)
-         .text('Chennai, Tamil Nadu - 600001', margin + 15, currentY + 86)
-         .text('GSTIN: 33AAACT5712A124', margin + 15, currentY + 100);
-
-      // Customer details box with shadow effect
-      const customerBoxX = margin + boxWidth + 20;
-      
-      doc.rect(customerBoxX, currentY, boxWidth, boxHeight)
-         .fill('#FFFFFF')
-         .stroke('#D0D0D0');
-      
-      // Customer header
-      doc.fillColor(darkGray)
-         .rect(customerBoxX, currentY, boxWidth, 30)
-         .fill();
-      
-      doc.fillColor('#FFFFFF')
-         .fontSize(12)
-         .font('Helvetica-Bold')
-         .text('BILLED TO', customerBoxX + 15, currentY + 10);
-
-      // Customer details with proper spacing
-      doc.fontSize(11)
-         .font('Helvetica-Bold')
-         .fillColor(primaryColor)
-         .text(bill.customerName || 'N/A', customerBoxX + 15, currentY + 42);
-         
-      doc.fontSize(10)
-         .font('Helvetica')
-         .fillColor(accentColor)
-         .text(bill.customerEmail || 'N/A', customerBoxX + 15, currentY + 58, { 
-           width: boxWidth - 30, 
-           ellipsis: true 
-         })
-         .text(bill.customerPhone || 'N/A', customerBoxX + 15, currentY + 72)
-         .text(bill.customerAddress || 'N/A', customerBoxX + 15, currentY + 86, { 
-           width: boxWidth - 30, 
-           height: 25,
-           ellipsis: true 
-         });
-
-      currentY += boxHeight + 30;
-
-      // Items table with professional styling
-      const tableHeaders = ['Description', 'Qty', 'Unit Price', 'Amount'];
-      const colWidths = [280, 70, 110, 110]; // Adjusted widths
-      const tableStartX = margin;
-      
-      // Table header background with rounded corners effect
-      doc.rect(tableStartX, currentY, contentWidth, 35)
-         .fill(darkGray);
-
-      // Table headers with better spacing
-      doc.fillColor('#FFFFFF')
-         .fontSize(12)
-         .font('Helvetica-Bold');
-      
-      let headerX = tableStartX + 15;
-      tableHeaders.forEach((header, i) => {
-        if (i === 0) {
-          doc.text(header, headerX, currentY + 12);
-        } else {
-          doc.text(header, headerX, currentY + 12, { 
-            align: i > 1 ? 'right' : 'center', 
-            width: colWidths[i] - 20 
-          });
-        }
-        headerX += colWidths[i];
-      });
-
-      currentY += 35;
-
-      // Table rows with improved spacing
-      doc.fontSize(11)
-         .font('Helvetica')
-         .fillColor(primaryColor);
-
-      let rowIndex = 0;
-      bill.items.forEach((item) => {
-        const rowY = currentY;
-        const rowHeight = 35; // Increased row height
-        const rowBg = rowIndex % 2 === 0 ? '#FFFFFF' : '#F8F9FA';
-        
-        // Row background with subtle border
-        doc.rect(tableStartX, rowY, contentWidth, rowHeight)
-           .fill(rowBg);
-        
-        // Add subtle row border
-        doc.moveTo(tableStartX, rowY + rowHeight)
-           .lineTo(tableStartX + contentWidth, rowY + rowHeight)
-           .strokeColor('#E0E0E0')
-           .lineWidth(0.5)
-           .stroke();
-
-        // Row data with better alignment
-        let cellX = tableStartX + 15;
-        const rate = bill.currency === 'INR' ? parseFloat(item.priceInr) : parseFloat(item.priceBhd);
-        const currency = bill.currency === 'INR' ? '₹' : 'BD ';
-        
-        // Product name (left aligned)
-        doc.fillColor(primaryColor)
-           .fontSize(11)
-           .font('Helvetica')
-           .text(item.productName, cellX, rowY + 12, { 
-             width: colWidths[0] - 30,
-             ellipsis: true 
-           });
-        cellX += colWidths[0];
-        
-        // Quantity (center aligned)
-        doc.text(item.quantity.toString(), cellX, rowY + 12, { 
-          align: 'center', 
-          width: colWidths[1] - 20 
-        });
-        cellX += colWidths[1];
-        
-        // Unit price (right aligned)
-        doc.text(`${currency}${rate.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
-                cellX, rowY + 12, { 
-                  align: 'right', 
-                  width: colWidths[2] - 20 
-                });
-        cellX += colWidths[2];
-        
-        // Total amount (right aligned, bold)
-        doc.font('Helvetica-Bold')
-           .text(`${currency}${parseFloat(item.total).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
-                cellX, rowY + 12, { 
-                  align: 'right', 
-                  width: colWidths[3] - 20 
-                });
-
-        currentY += rowHeight;
-        rowIndex++;
-        doc.font('Helvetica'); // Reset font
-      });
-
-      // Table bottom border
-      doc.moveTo(tableStartX, currentY)
-         .lineTo(tableStartX + contentWidth, currentY)
-         .stroke(accentColor);
+         .text('CUSTOMER COPY', pageWidth - 120, 50)
+         .text(`Date: ${new Date(bill.createdAt!).toLocaleDateString('en-IN')} ${new Date(bill.createdAt!).toLocaleTimeString('en-IN')}`, pageWidth - 140, 65);
 
       currentY += 20;
 
-      // Enhanced summary section with better styling
-      const summaryStartX = pageWidth - 280;
-      const summaryWidth = 250;
-      const currency = bill.currency === 'INR' ? '₹' : 'BD ';
+      // TAX INVOICE header with border
+      const headerY = currentY;
+      doc.rect(margin, headerY, pageWidth - (margin * 2), 25)
+         .stroke('#000000')
+         .lineWidth(1);
+
+      doc.fontSize(14)
+         .font('Helvetica-Bold')
+         .text('TAX INVOICE', margin + 5, headerY + 8);
+
+      currentY += 35;
+
+      // Company and Customer details section
+      const detailsY = currentY;
+      const leftColumnWidth = (pageWidth - margin * 2) / 2 - 10;
       
-      // Summary box background
-      doc.rect(summaryStartX - 10, currentY, summaryWidth, 140)
-         .fill('#F8F9FA')
-         .stroke('#E0E0E0');
+      // Left side - Company details
+      doc.fontSize(9)
+         .font('Helvetica-Bold')
+         .text('TITAN COMPANY LIMITED', margin + 5, detailsY);
       
-      currentY += 15;
-      
-      doc.fontSize(11)
+      doc.fontSize(8)
          .font('Helvetica')
-         .fillColor(primaryColor);
+         .text('AVK ARCADE 315 C', margin + 5, detailsY + 12)
+         .text('HOSUR MAIN ROAD OPP NEW BUS STAND', margin + 5, detailsY + 24)
+         .text('HOSUR MAIN ROAD OPP NEW BUS STAND', margin + 5, detailsY + 36)
+         .text('PINCODE : 636003', margin + 5, detailsY + 48)
+         .text(`Phone Number: 0427-2333324`, margin + 5, detailsY + 60)
+         .text('GSTIN: 33AAACT5712A1Z4', margin + 5, detailsY + 72)
+         .text('State Code : 33', margin + 5, detailsY + 84)
+         .text('CIN : L74999TZ1994PLC001456', margin + 5, detailsY + 96);
 
-      const summaryItems = [
-        { label: 'Subtotal:', value: parseFloat(bill.subtotal) },
-        { label: 'Making Charges:', value: parseFloat(bill.makingCharges) },
-        { label: `${bill.currency === 'BHD' ? 'VAT' : 'GST'}:`, value: parseFloat(bill.gst) },
-        { label: 'Discount:', value: parseFloat(bill.discount), isDiscount: true }
-      ];
+      // Right side - Customer details
+      const rightX = margin + leftColumnWidth + 20;
+      doc.fontSize(9)
+         .font('Helvetica-Bold')
+         .text('CUSTOMER DETAILS:', rightX, detailsY);
+      
+      doc.fontSize(8)
+         .font('Helvetica')
+         .text(bill.customerName || 'N/A', rightX, detailsY + 12)
+         .text(bill.customerPhone || 'N/A', rightX, detailsY + 24)
+         .text(bill.customerAddress || 'N/A', rightX, detailsY + 36, { width: leftColumnWidth })
+         .text(bill.customerEmail || 'N/A', rightX, detailsY + 60);
 
-      summaryItems.forEach((item, index) => {
-        const y = currentY + (index * 22);
-        const labelX = summaryStartX;
-        const valueX = summaryStartX + 140;
-        
-        doc.text(item.label, labelX, y);
-        
-        let valueText;
-        if (item.isDiscount && item.value > 0) {
-          valueText = `-${currency}${item.value.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-          doc.fillColor('#D32F2F'); // Red for discount
-        } else {
-          valueText = `${currency}${Math.abs(item.value).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
-          doc.fillColor(primaryColor);
-        }
-        
-        doc.text(valueText, valueX, y, { align: 'right', width: 90 });
+      currentY = detailsY + 120;
+
+      // Standard rates header
+      doc.rect(margin, currentY, pageWidth - (margin * 2), 15)
+         .fill('#E5E5E5')
+         .stroke('#000000');
+
+      doc.fontSize(8)
+         .font('Helvetica-Bold')
+         .fillColor('#000000')
+         .text('Standard Rate of 24 Karat/22 Karat/18 Karat/14 Karat Gold Rs: 7063.58 Rs6475.00 Rs5279.72 Rs4140.43 Rs/ Standard Rate of 95.00% Purity Platinum Rs: 3,530.00', 
+              margin + 5, currentY + 5, { width: pageWidth - (margin * 2) - 10 });
+
+      currentY += 25;
+
+      // Items table
+      const tableY = currentY;
+      const tableHeaders = ['Product description', 'Purity (Krt)', 'Huid No.', 'Product Rate', 'Stone Weight (grams)', 'Net Weight (grams)', 'Gross Weight (grams)', 'Product Price (Rs.)', 'Making Charges (%)', 'Discount Price (Rs.)', 'SGST (%)', 'CGST (%)', 'Product Value (Rs.)'];
+      const colWidths = [80, 40, 35, 35, 40, 40, 40, 45, 45, 50, 35, 35, 50];
+      
+      // Table header
+      doc.rect(margin, tableY, pageWidth - (margin * 2), 30)
+         .fill('#E5E5E5')
+         .stroke('#000000');
+
+      let headerX = margin + 3;
+      doc.fontSize(7)
+         .font('Helvetica-Bold')
+         .fillColor('#000000');
+      
+      tableHeaders.forEach((header, i) => {
+        doc.text(header, headerX, tableY + 3, { width: colWidths[i] - 2, align: 'center' });
+        headerX += colWidths[i];
       });
 
-      currentY += summaryItems.length * 22 + 15;
+      currentY = tableY + 30;
 
-      // Enhanced total line with gradient effect
-      doc.rect(summaryStartX - 5, currentY - 5, summaryWidth - 10, 35)
-         .fill(darkGray);
+      // Table rows
+      doc.fontSize(7)
+         .font('Helvetica');
 
-      doc.fillColor('#FFFFFF')
-         .fontSize(14)
-         .font('Helvetica-Bold')
-         .text('TOTAL AMOUNT:', summaryStartX + 5, currentY + 10);
-         
-      doc.fontSize(16)
-         .text(`${currency}${parseFloat(bill.total).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
-              summaryStartX + 140, currentY + 8, { align: 'right', width: 90 });
-
-      currentY += 50;
-
-      // Enhanced payment information section
-      const paymentBoxY = currentY;
-      const paymentBoxHeight = 60;
+      const currency = bill.currency === 'INR' ? 'Rs.' : 'BD';
       
-      doc.rect(margin, paymentBoxY, contentWidth, paymentBoxHeight)
-         .fill('#F0F8FF')
-         .stroke('#B0C4DE');
+      bill.items.forEach((item, index) => {
+        const rowY = currentY;
+        const rowHeight = 25;
+        
+        // Row background
+        if (index % 2 === 1) {
+          doc.rect(margin, rowY, pageWidth - (margin * 2), rowHeight)
+             .fill('#F8F8F8');
+        }
+        
+        // Row border
+        doc.rect(margin, rowY, pageWidth - (margin * 2), rowHeight)
+           .stroke('#000000');
 
-      doc.fontSize(11)
-         .fillColor(darkGray)
-         .font('Helvetica-Bold')
-         .text('PAYMENT DETAILS', margin + 15, paymentBoxY + 15);
+        let cellX = margin + 3;
+        doc.fillColor('#000000');
+        
+        // Product description
+        doc.text(item.productName, cellX, rowY + 8, { width: colWidths[0] - 2 });
+        cellX += colWidths[0];
+        
+        // Purity (static for jewelry)
+        doc.text('22', cellX, rowY + 8, { width: colWidths[1] - 2, align: 'center' });
+        cellX += colWidths[1];
+        
+        // HUID No. (generate fake for demo)
+        doc.text('1711397Q', cellX, rowY + 8, { width: colWidths[2] - 2, align: 'center' });
+        cellX += colWidths[2];
+        
+        // Product Rate
+        const rate = bill.currency === 'INR' ? parseFloat(item.priceInr) : parseFloat(item.priceBhd);
+        doc.text(rate.toFixed(0), cellX, rowY + 8, { width: colWidths[3] - 2, align: 'center' });
+        cellX += colWidths[3];
+        
+        // Stone Weight (generate realistic values)
+        doc.text('0.000', cellX, rowY + 8, { width: colWidths[4] - 2, align: 'center' });
+        cellX += colWidths[4];
+        
+        // Net Weight (generate based on item)
+        const netWeight = (parseFloat(item.grossWeight) || 5.0);
+        doc.text(netWeight.toFixed(3), cellX, rowY + 8, { width: colWidths[5] - 2, align: 'center' });
+        cellX += colWidths[5];
+        
+        // Gross Weight
+        doc.text(netWeight.toFixed(3), cellX, rowY + 8, { width: colWidths[6] - 2, align: 'center' });
+        cellX += colWidths[6];
+        
+        // Product Price
+        doc.text(rate.toFixed(2), cellX, rowY + 8, { width: colWidths[7] - 2, align: 'right' });
+        cellX += colWidths[7];
+        
+        // Making Charges % (20.00% for Indian, 15.00% for Bahrain)
+        const makingPercent = bill.currency === 'INR' ? '20.00%' : '15.00%';
+        doc.text(makingPercent, cellX, rowY + 8, { width: colWidths[8] - 2, align: 'center' });
+        cellX += colWidths[8];
+        
+        // Discount Price
+        const discountAmount = parseFloat(bill.discount) || 0;
+        doc.text(discountAmount.toFixed(2), cellX, rowY + 8, { width: colWidths[9] - 2, align: 'right' });
+        cellX += colWidths[9];
+        
+        // SGST % (9% for Indian, 0% for Bahrain)
+        const sgstPercent = bill.currency === 'INR' ? '9%' : '0%';
+        doc.text(sgstPercent, cellX, rowY + 8, { width: colWidths[10] - 2, align: 'center' });
+        cellX += colWidths[10];
+        
+        // CGST % (9% for Indian, 0% for Bahrain)
+        const cgstPercent = bill.currency === 'INR' ? '9%' : '0%';
+        doc.text(cgstPercent, cellX, rowY + 8, { width: colWidths[11] - 2, align: 'center' });
+        cellX += colWidths[11];
+        
+        // Product Value
+        doc.text(parseFloat(item.total).toFixed(2), cellX, rowY + 8, { width: colWidths[12] - 2, align: 'right' });
 
-      doc.fontSize(10)
-         .font('Helvetica')
-         .fillColor(primaryColor)
-         .text('Payment Method:', margin + 15, paymentBoxY + 35)
-         .font('Helvetica-Bold')
-         .text(bill.paymentMethod || 'Cash', margin + 120, paymentBoxY + 35);
+        currentY += rowHeight;
+      });
 
-      if (bill.paidAmount) {
-        doc.font('Helvetica')
-           .text('Amount Paid:', margin + 300, paymentBoxY + 35)
-           .font('Helvetica-Bold')
-           .text(`${currency}${parseFloat(bill.paidAmount).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
-                margin + 380, paymentBoxY + 35);
-      }
+      // Total row
+      const totalRowY = currentY;
+      doc.rect(margin, totalRowY, pageWidth - (margin * 2), 20)
+         .fill('#E5E5E5')
+         .stroke('#000000');
 
-      currentY += paymentBoxHeight + 20;
-
-      // Footer section with enhanced styling
-      const footerY = doc.page.height - 120;
-      
-      doc.rect(0, footerY - 10, pageWidth, 60)
-         .fill('#F8F9FA');
-
-      doc.fontSize(9)
-         .fillColor(accentColor)
-         .text('Thank you for choosing Palaniappa Jewellers!', margin, footerY, { align: 'center', width: contentWidth })
-         .text('For any queries, please contact us at +91 95972 01554 or jewelerypalaniappa@gmail.com', 
-              margin, footerY + 15, { align: 'center', width: contentWidth });
-
-      // Terms and conditions
       doc.fontSize(8)
-         .text('Terms & Conditions: All sales are final. Please inspect your purchase before leaving the store.', 
-              margin, footerY + 35, { width: contentWidth });
+         .font('Helvetica-Bold')
+         .text('Total', margin + 5, totalRowY + 8)
+         .text(bill.items.length.toString(), margin + 120, totalRowY + 8, { align: 'center' })
+         .text(parseFloat(bill.total).toFixed(2), pageWidth - 80, totalRowY + 8, { align: 'right' });
 
-      // Add subtle watermark
-      addWatermark();
+      currentY = totalRowY + 30;
 
-      // Add page numbers for multi-page documents
-      const pageCount = doc.bufferedPageRange().count;
-      for (let i = 0; i < pageCount; i++) {
-        doc.switchToPage(i);
-        doc.fontSize(8)
-           .fillColor(accentColor)
-           .text(`Page ${i + 1} of ${pageCount}`, margin, doc.page.height - 30, 
-                 { align: 'center', width: contentWidth });
-      }
+      // Payment details and totals section
+      const summaryY = currentY;
+      
+      // Left side - Payment details
+      doc.fontSize(8)
+         .font('Helvetica-Bold')
+         .text('Total Qty Purchased', margin + 5, summaryY)
+         .text('Payment Details', margin + 5, summaryY + 15)
+         .text('Payment Mode', margin + 5, summaryY + 30)
+         .text('CASH', margin + 5, summaryY + 45)
+         .text('Total Amount Paid', margin + 5, summaryY + 75);
+
+      // Values for payment details
+      doc.font('Helvetica')
+         .text(bill.items.length.toString(), margin + 120, summaryY)
+         .text('Doc No', margin + 180, summaryY + 30)
+         .text('Customer Name', margin + 260, summaryY + 30)
+         .text('Amount (Rs.)', margin + 380, summaryY + 30)
+         .text(`${currency} ${parseFloat(bill.total).toFixed(2)}`, margin + 120, summaryY + 45)
+         .text('10.00', margin + 180, summaryY + 60)
+         .text(`${currency} ${parseFloat(bill.total).toFixed(2)}`, margin + 120, summaryY + 75);
+
+      // Right side - Additional charges and totals
+      const rightSummaryX = pageWidth - 200;
+      doc.fontSize(8)
+         .font('Helvetica-Bold')
+         .text('Product Total Value', rightSummaryX, summaryY)
+         .text('Additional Other Charges', rightSummaryX, summaryY + 15)
+         .text('Other charges:', rightSummaryX + 10, summaryY + 30)
+         .text('Total Other charges value', rightSummaryX, summaryY + 45)
+         .text('Net Invoice values', rightSummaryX, summaryY + 60)
+         .text('Discount Details - PRODUCT LEVEL DISCOUNT: 1583.98 BILL', rightSummaryX, summaryY + 75)
+         .text('LEVEL DISCOUNT: 140.64', rightSummaryX + 10, summaryY + 90)
+         .text('Net Charges discount', rightSummaryX, summaryY + 105)
+         .text('Total Amount to be paid', rightSummaryX, summaryY + 135);
+
+      // Values for totals
+      doc.font('Helvetica')
+         .text(parseFloat(bill.total).toFixed(2), rightSummaryX + 120, summaryY, { align: 'right' })
+         .text('0.00', rightSummaryX + 120, summaryY + 30, { align: 'right' })
+         .text('0.00', rightSummaryX + 120, summaryY + 45, { align: 'right' })
+         .text(`${currency}${parseFloat(bill.total).toFixed(2)}`, rightSummaryX + 120, summaryY + 60, { align: 'right' })
+         .text('15.00', rightSummaryX + 120, summaryY + 105, { align: 'right' })
+         .text(`${currency}${parseFloat(bill.total).toFixed(2)}`, rightSummaryX + 120, summaryY + 135, { align: 'right' });
+
+      currentY = summaryY + 170;
+
+      // Amount in words
+      doc.fontSize(8)
+         .font('Helvetica')
+         .text('Value in words :- Rupees forty-six thousand five hundred and ten Only', margin + 5, currentY);
+
+      currentY += 30;
+
+      // Footer
+      const footerY = pageHeight - 80;
+      doc.fontSize(7)
+         .text('Corporate Office : TITAN COMPANY LIMITED : Integrity : #-193, Veerasandra Electronics City P.O. Off Hosur Main Road Bangalore 560100, India : Tel: +91 80 67607200, Fax: +91 80', 
+               margin, footerY, { width: pageWidth - (margin * 2), align: 'center' })
+         .text('67016262', margin, footerY + 12, { width: pageWidth - (margin * 2), align: 'center' })
+         .text('*G/PS - Gold/Platinum/Silver    *HM - Hallmark', margin, footerY + 24, { align: 'right', width: pageWidth - margin * 2 });
 
       doc.end();
     } catch (error) {
