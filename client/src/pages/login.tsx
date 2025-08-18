@@ -16,11 +16,11 @@ export default function Login() {
   // Redirect if already logged in
   useEffect(() => {
     if (user && isAdmin) {
-      window.location.href = '/admin';
+      setLocation('/admin');
     } else if (user) {
-      window.location.href = '/';
+      setLocation('/');
     }
-  }, [user, isAdmin]);
+  }, [user, isAdmin, setLocation]);
   
   const [loginType, setLoginType] = useState<'guest' | 'admin'>('guest');
   const [email, setEmail] = useState('');
@@ -41,9 +41,9 @@ export default function Login() {
       // Force redirect based on user role
       setTimeout(() => {
         if (loginResult?.role === 'admin') {
-          window.location.href = '/admin';
+          setLocation('/admin');
         } else {
-          window.location.href = '/';
+          setLocation('/');
         }
       }, 100);
     } catch (error) {

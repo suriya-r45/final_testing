@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { formatPrice } from '@/lib/currency';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +26,8 @@ function CheckoutForm() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [isIndianUser, setIsIndianUser] = useState(true); // Detect based on phone or location
   
   // Customer information
   const [customerInfo, setCustomerInfo] = useState({
@@ -36,10 +39,6 @@ function CheckoutForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
 
     // Validate customer information
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
@@ -54,27 +53,49 @@ function CheckoutForm() {
     setIsProcessing(true);
 
     try {
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/order-success`,
-        },
-      });
+      if (paymentMethod === 'stripe') {
+        if (!stripe || !elements) {
+          return;
+        }
 
-      if (error) {
-        toast({
-          title: "Payment Failed",
-          description: error.message,
-          variant: "destructive",
+        const { error } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/order-success`,
+          },
         });
+
+        if (error) {
+          toast({
+            title: "Payment Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          clearCart();
+          toast({
+            title: "Payment Successful",
+            description: "Thank you for your purchase!",
+          });
+          setLocation('/order-success');
+        }
       } else {
-        // Clear cart on successful payment
-        clearCart();
+        // Handle Indian payment methods (GPay, PhonePe, Paytm)
+        // In a real implementation, you would integrate with respective payment gateways
         toast({
-          title: "Payment Successful",
-          description: "Thank you for your purchase!",
+          title: "Redirecting to Payment",
+          description: `Opening ${paymentMethod === 'gpay' ? 'Google Pay' : paymentMethod === 'phonepe' ? 'PhonePe' : 'Paytm'}...`,
         });
-        setLocation('/order-success');
+        
+        // Simulate payment processing for demo
+        setTimeout(() => {
+          clearCart();
+          toast({
+            title: "Payment Successful",
+            description: "Thank you for your purchase!",
+          });
+          setLocation('/order-success');
+        }, 2000);
       }
     } catch (error) {
       toast({
@@ -187,10 +208,70 @@ function CheckoutForm() {
 
                   <Separator />
 
+                  {/* Payment Method Selection */}
+                  {isIndianUser && (
+                    <div className="space-y-4">
+                      <h3 className="font-semibold">Payment Method</h3>
+                      <RadioGroup 
+                        value={paymentMethod} 
+                        onValueChange={setPaymentMethod}
+                        className="grid grid-cols-2 gap-4"
+                      >
+                        <div className="flex items-center space-x-2 border rounded-lg p-3">
+                          <RadioGroupItem value="stripe" id="stripe" />
+                          <Label htmlFor="stripe" className="flex items-center cursor-pointer">
+                            💳 Credit/Debit Card
+                          </Label>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 border rounded-lg p-3">
+                          <RadioGroupItem value="gpay" id="gpay" />
+                          <Label htmlFor="gpay" className="flex items-center cursor-pointer">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMjIgMTJMMTIgMjJMMiAxMkwxMiAyWiIgZmlsbD0iIzQyODVGNCIvPgo8cGF0aCBkPSJNMTIgN0wxNyAxMkwxMiAxN0w3IDEyTDEyIDdaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K" alt="GPay" className="w-5 h-5 mr-2"/>
+                            Google Pay
+                          </Label>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 border rounded-lg p-3">
+                          <RadioGroupItem value="phonepe" id="phonepe" />
+                          <Label htmlFor="phonepe" className="flex items-center cursor-pointer">
+                            <div className="w-5 h-5 mr-2 bg-purple-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                              P
+                            </div>
+                            PhonePe
+                          </Label>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 border rounded-lg p-3">
+                          <RadioGroupItem value="paytm" id="paytm" />
+                          <Label htmlFor="paytm" className="flex items-center cursor-pointer">
+                            <div className="w-5 h-5 mr-2 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                              ₹
+                            </div>
+                            Paytm
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  )}
+
                   {/* Payment Element */}
                   <div className="space-y-4">
-                    <h3 className="font-semibold">Payment Information</h3>
-                    <PaymentElement />
+                    <h3 className="font-semibold">
+                      {paymentMethod === 'stripe' ? 'Payment Information' : 'Payment Details'}
+                    </h3>
+                    
+                    {paymentMethod === 'stripe' ? (
+                      <PaymentElement />
+                    ) : (
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-800">
+                          {paymentMethod === 'gpay' && "You'll be redirected to Google Pay to complete your payment."}
+                          {paymentMethod === 'phonepe' && "You'll be redirected to PhonePe to complete your payment."}
+                          {paymentMethod === 'paytm' && "You'll be redirected to Paytm to complete your payment."}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <Button

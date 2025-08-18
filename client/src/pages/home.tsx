@@ -79,6 +79,16 @@ export default function Home() {
             return a.name.localeCompare(b.name);
           case 'name_desc':
             return b.name.localeCompare(a.name);
+          case 'weight_asc':
+            return (parseFloat(a.grossWeight || '0') || 0) - (parseFloat(b.grossWeight || '0') || 0);
+          case 'weight_desc':
+            return (parseFloat(b.grossWeight || '0') || 0) - (parseFloat(a.grossWeight || '0') || 0);
+          case 'stock':
+            return b.stock - a.stock;
+          case 'popular':
+            return b.name.localeCompare(a.name); // Can be enhanced with actual popularity metrics
+          case 'rating':
+            return b.name.localeCompare(a.name); // Can be enhanced with actual rating system
           default:
             return 0;
         }

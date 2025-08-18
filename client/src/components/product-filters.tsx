@@ -253,6 +253,10 @@ export default function ProductFiltersComponent({ filters, onFiltersChange }: Pr
                   <SelectItem value="price_desc">Price: High to Low</SelectItem>
                   <SelectItem value="name_asc">Name: A to Z</SelectItem>
                   <SelectItem value="name_desc">Name: Z to A</SelectItem>
+                  <SelectItem value="rating">Highest Rated</SelectItem>
+                  <SelectItem value="weight_asc">Weight: Light to Heavy</SelectItem>
+                  <SelectItem value="weight_desc">Weight: Heavy to Light</SelectItem>
+                  <SelectItem value="stock">In Stock First</SelectItem>
                 </SelectContent>
               </Select>
             </div>

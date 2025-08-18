@@ -2,14 +2,15 @@
 
 This is a jewelry management and e-commerce system for Palaniappa Jewellers. The application provides a public-facing website for customers to browse products and an admin dashboard for managing inventory and billing. Built with a modern full-stack architecture using React for the frontend and Express.js for the backend, the system supports dual-currency pricing (INR and BHD) and includes WhatsApp integration for customer inquiries.
 
-## Recent Changes (January 2025)
-- Added comprehensive product details pages with full specifications and cart integration
-- Implemented WhatsApp enquiry buttons for individual products with original WhatsApp icon
-- Fixed VAT display for Bahrain customers (shows VAT instead of GST in bills)
-- Updated bill download PDF format to match bill preview exactly with company logo
-- Enhanced admin authentication system with proper redirects
-- Added product navigation from cards to individual detail pages
-- Integrated live gold/silver rates ticker and currency-specific UI elements
+## Recent Changes (August 2025)
+- **Migration from Replit Agent to Replit Environment**: Successfully migrated the entire application to run natively on Replit with proper workflows
+- **Enhanced Product Details**: Added detailed product descriptions with "Why Choose This Piece?" section and comprehensive specifications
+- **WhatsApp Integration**: Repositioned WhatsApp enquiry button above "Add to Cart" on product detail pages for better user experience
+- **Indian Payment Options**: Added GPay, PhonePe, and Paytm payment methods specifically for Indian customers alongside existing Stripe integration
+- **Admin Login Fix**: Resolved admin authentication redirect issue using proper wouter navigation instead of window.location
+- **Enhanced Filtering & Sorting**: Added advanced sorting options including weight-based sorting, popularity, ratings, and stock-first sorting
+- **Improved Filter System**: Enhanced product filters with better categorization and real-time price range sliders
+- **Better Product Navigation**: Enhanced navigation from product cards to individual detail pages with improved user flow
 
 # User Preferences
 

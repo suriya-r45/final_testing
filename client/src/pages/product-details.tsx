@@ -190,9 +190,25 @@ export default function ProductDetails() {
               )}
             </div>
 
-            <p className="text-gray-600 leading-relaxed" data-testid="text-product-description">
-              {product.description}
-            </p>
+            {/* Enhanced Product Description */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-black">Product Description</h3>
+              <p className="text-gray-600 leading-relaxed" data-testid="text-product-description">
+                {product.description}
+              </p>
+              
+              {/* Additional Product Details */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-black mb-2">Why Choose This Piece?</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Crafted with precision using traditional techniques</li>
+                  <li>• Made from high-quality materials for lasting beauty</li>
+                  <li>• Perfect for special occasions and everyday elegance</li>
+                  <li>• Comes with authenticity certificate and warranty</li>
+                  <li>• Expert craftsmanship by skilled artisans</li>
+                </ul>
+              </div>
+            </div>
 
             {/* Product Specifications */}
             <Card>
@@ -233,18 +249,7 @@ export default function ProductDetails() {
 
             {/* Action Buttons */}
             <div className="space-y-4">
-              <div className="flex space-x-4">
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                  className="flex-1 bg-black text-white hover:bg-gray-800"
-                  data-testid="button-add-to-cart"
-                >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  Add to Cart
-                </Button>
-              </div>
-              
+              {/* WhatsApp Enquiry Button - Above Add to Cart */}
               <Button
                 onClick={handleWhatsAppEnquiry}
                 className="w-full bg-green-500 hover:bg-green-600 text-white"
@@ -260,6 +265,19 @@ export default function ProductDetails() {
                 </svg>
                 WhatsApp Enquiry
               </Button>
+              
+              {/* Add to Cart Button */}
+              <div className="flex space-x-4">
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={product.stock === 0}
+                  className="flex-1 bg-black text-white hover:bg-gray-800"
+                  data-testid="button-add-to-cart"
+                >
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  Add to Cart
+                </Button>
+              </div>
             </div>
 
             {/* Additional Info */}
