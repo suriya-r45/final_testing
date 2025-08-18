@@ -310,7 +310,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Bill PDF generation - Remove authentication temporarily to test
+  // Enhanced Bill PDF generation with elegant styling
   app.get("/api/bills/:id/pdf", async (req, res) => {
     try {
       const bill = await storage.getBill(req.params.id);
@@ -318,89 +318,288 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Bill not found" });
       }
 
-      // Create PDF
-      const doc = new PDFDocument({ size: 'A4', margin: 50 });
-      const filename = `${bill.customerName.replace(/\s+/g, '_')}_${bill.billNumber}.pdf`;
+      // Create PDF with enhanced settings
+      const doc = new PDFDocument({ 
+        size: 'A4', 
+        margin: 40,
+        info: {
+          Title: `Invoice ${bill.billNumber}`,
+          Author: 'Palaniappa Jewellers',
+          Subject: 'Tax Invoice',
+          Keywords: 'invoice, jewelry, tax'
+        }
+      });
+      
+      const filename = `Invoice_${bill.billNumber}_${bill.customerName.replace(/\s+/g, '_')}.pdf`;
 
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
       doc.pipe(res);
 
+      const pageWidth = doc.page.width;
+      const margin = 40;
+      const contentWidth = pageWidth - (margin * 2);
+
+      // Colors for styling
+      const primaryColor = '#000000';
+      const accentColor = '#666666';
+      const lightGray = '#F5F5F5';
+      const darkGray = '#333333';
+
+      // Helper function to add watermark
+      function addWatermark() {
+        doc.save();
+        doc.fillColor('#EEEEEE')
+           .fontSize(60)
+           .text('PALANIAPPA JEWELLERS', 0, 300, {
+             align: 'center',
+             width: pageWidth,
+             rotate: -45
+           });
+        doc.restore();
+      }
+
+      // Add elegant header background
+      doc.rect(0, 0, pageWidth, 140)
+         .fill('#F8F9FA');
+
       // Add company logo if available
+      let logoY = 25;
       try {
-        doc.image('./attached_assets/1000284180_1755240849891_1755538055896.jpg', 250, 50, { width: 100, height: 100 });
+        doc.image('./attached_assets/1000284180_1755240849891_1755538055896.jpg', 
+                 pageWidth - 130, logoY, { width: 80, height: 80 });
       } catch (error) {
         console.log('Logo not found, continuing without image');
       }
 
-      // Company header moved below logo
-      doc.fontSize(18).text('PALANIAPPA JEWELLERS', 50, 170, { align: 'center' });
-      doc.fontSize(12).text('Since 2025', 50, 190, { align: 'center' });
+      // Elegant company header
+      doc.fillColor(primaryColor)
+         .fontSize(28)
+         .font('Helvetica-Bold')
+         .text('PALANIAPPA JEWELLERS', margin, 35);
 
-      // Bill Info
-      doc.fontSize(16).text('TAX INVOICE', 50, 220);
-      doc.fontSize(10);
-      doc.text(`Bill No: ${bill.billNumber}`, 50, 245);
-      doc.text(`Date: ${new Date(bill.createdAt!).toLocaleDateString()}`, 50, 260);
-      doc.text(`Currency: ${bill.currency}`, 50, 275);
-      
-      // Customer copy info
-      doc.text('CUSTOMER COPY', 400, 220);
-      doc.text(`Date: ${new Date(bill.createdAt!).toLocaleString()}`, 400, 235);
+      doc.fontSize(11)
+         .fillColor(accentColor)
+         .font('Helvetica')
+         .text('Premium Jewelry & Ornaments Since 2025', margin, 70)
+         .text('123 Jewelry Street, Chennai, Tamil Nadu - 600001', margin, 85)
+         .text('Phone: +91 95972 01554 | Email: jewelerypalaniappa@gmail.com', margin, 100)
+         .text('GSTIN: 33AAACT5712A124', margin, 115);
 
-      // Company and Customer Details in bordered sections
-      doc.rect(50, 300, 240, 120).stroke();
-      doc.rect(310, 300, 240, 120).stroke();
+      // Invoice title and details section
+      let currentY = 160;
       
-      // Company Details
-      doc.fontSize(10).text('PALANIAPPA JEWELLERS', 60, 310, { width: 220 });
-      doc.text('Premium Jewelry Store', 60, 325);
-      doc.text('123 Jewelry Street', 60, 340);
-      doc.text('Chennai, Tamil Nadu', 60, 355);
-      doc.text('PINCODE: 600001', 60, 370);
-      doc.text('Phone Number: +919597201554', 60, 385);
-      doc.text('GSTIN: 33AAACT5712A124', 60, 400);
+      // Invoice header with background
+      doc.rect(margin, currentY, contentWidth, 35)
+         .fill(primaryColor);
       
-      // Customer Details
-      doc.text('CUSTOMER DETAILS:', 320, 310, { width: 220 });
-      doc.text(`Name: ${bill.customerName}`, 320, 325);
-      doc.text(`Email: ${bill.customerEmail}`, 320, 340);
-      doc.text(`Phone: ${bill.customerPhone}`, 320, 355);
-      doc.text(`Address: ${bill.customerAddress}`, 320, 370, { width: 220 });
+      doc.fillColor('#FFFFFF')
+         .fontSize(18)
+         .font('Helvetica-Bold')
+         .text('TAX INVOICE', margin + 15, currentY + 10);
 
-      // Items Table
-      let yPos = 450;
-      doc.text('Items:', 50, yPos);
-      yPos += 20;
+      const invoiceDate = new Date(bill.createdAt!);
+      doc.fontSize(11)
+         .text(`Invoice No: ${bill.billNumber}`, pageWidth - 200, currentY + 8)
+         .text(`Date: ${invoiceDate.toLocaleDateString('en-IN')}`, pageWidth - 200, currentY + 22);
+
+      currentY += 55;
+
+      // Customer and Company details in elegant boxes
+      const boxHeight = 100;
+      
+      // Company details box
+      doc.rect(margin, currentY, contentWidth/2 - 10, boxHeight)
+         .stroke(accentColor);
+      
+      doc.fillColor(lightGray)
+         .rect(margin, currentY, contentWidth/2 - 10, 25)
+         .fill();
+      
+      doc.fillColor(darkGray)
+         .fontSize(11)
+         .font('Helvetica-Bold')
+         .text('BILLED FROM', margin + 10, currentY + 8);
+
+      doc.fontSize(10)
+         .font('Helvetica')
+         .fillColor(primaryColor)
+         .text('PALANIAPPA JEWELLERS', margin + 10, currentY + 35)
+         .text('Premium Jewelry Store', margin + 10, currentY + 50)
+         .text('Chennai, Tamil Nadu - 600001', margin + 10, currentY + 65)
+         .text('GSTIN: 33AAACT5712A124', margin + 10, currentY + 80);
+
+      // Customer details box
+      const customerBoxX = margin + contentWidth/2 + 10;
+      
+      doc.rect(customerBoxX, currentY, contentWidth/2 - 10, boxHeight)
+         .stroke(accentColor);
+      
+      doc.fillColor(lightGray)
+         .rect(customerBoxX, currentY, contentWidth/2 - 10, 25)
+         .fill();
+      
+      doc.fillColor(darkGray)
+         .fontSize(11)
+         .font('Helvetica-Bold')
+         .text('BILLED TO', customerBoxX + 10, currentY + 8);
+
+      doc.fontSize(10)
+         .font('Helvetica')
+         .fillColor(primaryColor)
+         .text(bill.customerName, customerBoxX + 10, currentY + 35)
+         .text(bill.customerEmail, customerBoxX + 10, currentY + 50)
+         .text(bill.customerPhone, customerBoxX + 10, currentY + 65)
+         .text(bill.customerAddress, customerBoxX + 10, currentY + 80, { width: contentWidth/2 - 30 });
+
+      currentY += boxHeight + 30;
+
+      // Items table with professional styling
+      const tableHeaders = ['Description', 'Qty', 'Rate', 'Amount'];
+      const colWidths = [250, 60, 100, 100];
+      const tableStartX = margin;
+      
+      // Table header background
+      doc.rect(tableStartX, currentY, contentWidth, 30)
+         .fill(darkGray);
 
       // Table headers
-      doc.text('Product', 50, yPos);
-      doc.text('Qty', 200, yPos);
-      doc.text('Price', 250, yPos);
-      doc.text('Total', 350, yPos);
-      yPos += 15;
-
-      // Table data
-      bill.items.forEach((item) => {
-        doc.text(item.productName, 50, yPos);
-        doc.text(item.quantity.toString(), 200, yPos);
-        doc.text(bill.currency === 'INR' ? `₹${item.priceInr}` : `BD ${item.priceBhd}`, 250, yPos);
-        doc.text(item.total, 350, yPos);
-        yPos += 15;
+      doc.fillColor('#FFFFFF')
+         .fontSize(11)
+         .font('Helvetica-Bold');
+      
+      let headerX = tableStartX + 10;
+      tableHeaders.forEach((header, i) => {
+        doc.text(header, headerX, currentY + 10);
+        headerX += colWidths[i];
       });
 
-      // Totals
-      yPos += 20;
-      doc.text(`Subtotal: ${bill.currency === 'INR' ? '₹' : 'BD'} ${bill.subtotal}`, 300, yPos);
-      yPos += 15;
-      doc.text(`Making Charges: ${bill.currency === 'INR' ? '₹' : 'BD'} ${bill.makingCharges}`, 300, yPos);
-      yPos += 15;
-      doc.text(`${bill.currency === 'BHD' ? 'VAT' : 'GST'}: ${bill.currency === 'INR' ? '₹' : 'BD'} ${bill.gst}`, 300, yPos);
-      yPos += 15;
-      doc.text(`Discount: ${bill.currency === 'INR' ? '₹' : 'BD'} ${bill.discount}`, 300, yPos);
-      yPos += 15;
-      doc.fontSize(12).text(`Total: ${bill.currency === 'INR' ? '₹' : 'BD'} ${bill.total}`, 300, yPos);
+      currentY += 30;
+
+      // Table rows
+      doc.fontSize(10)
+         .font('Helvetica')
+         .fillColor(primaryColor);
+
+      let rowIndex = 0;
+      bill.items.forEach((item) => {
+        const rowY = currentY;
+        const rowBg = rowIndex % 2 === 0 ? '#FFFFFF' : '#F9F9F9';
+        
+        // Row background
+        doc.rect(tableStartX, rowY, contentWidth, 25)
+           .fill(rowBg);
+
+        // Row data
+        let cellX = tableStartX + 10;
+        const rate = bill.currency === 'INR' ? parseFloat(item.priceInr) : parseFloat(item.priceBhd);
+        const currency = bill.currency === 'INR' ? '₹' : 'BD ';
+        
+        doc.fillColor(primaryColor)
+           .text(item.productName, cellX, rowY + 8, { width: colWidths[0] - 15 });
+        cellX += colWidths[0];
+        
+        doc.text(item.quantity.toString(), cellX, rowY + 8, { align: 'center', width: colWidths[1] });
+        cellX += colWidths[1];
+        
+        doc.text(`${currency}${rate.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
+                cellX, rowY + 8, { align: 'right', width: colWidths[2] - 10 });
+        cellX += colWidths[2];
+        
+        doc.text(`${currency}${parseFloat(item.total).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
+                cellX, rowY + 8, { align: 'right', width: colWidths[3] - 10 });
+
+        currentY += 25;
+        rowIndex++;
+      });
+
+      // Table bottom border
+      doc.moveTo(tableStartX, currentY)
+         .lineTo(tableStartX + contentWidth, currentY)
+         .stroke(accentColor);
+
+      currentY += 20;
+
+      // Summary section
+      const summaryStartX = pageWidth - 250;
+      const currency = bill.currency === 'INR' ? '₹' : 'BD ';
+      
+      doc.fontSize(10)
+         .font('Helvetica');
+
+      const summaryItems = [
+        { label: 'Subtotal:', value: parseFloat(bill.subtotal) },
+        { label: 'Making Charges:', value: parseFloat(bill.makingCharges) },
+        { label: `${bill.currency === 'BHD' ? 'VAT' : 'GST'}:`, value: parseFloat(bill.gst) },
+        { label: 'Discount:', value: -parseFloat(bill.discount) }
+      ];
+
+      summaryItems.forEach((item, index) => {
+        const y = currentY + (index * 18);
+        doc.text(item.label, summaryStartX, y)
+           .text(`${currency}${Math.abs(item.value).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
+                summaryStartX + 80, y, { align: 'right', width: 120 });
+      });
+
+      currentY += summaryItems.length * 18 + 10;
+
+      // Total line
+      doc.rect(summaryStartX - 10, currentY - 5, 210, 25)
+         .fill(darkGray);
+
+      doc.fillColor('#FFFFFF')
+         .fontSize(12)
+         .font('Helvetica-Bold')
+         .text('TOTAL:', summaryStartX, currentY + 5)
+         .text(`${currency}${parseFloat(bill.total).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
+              summaryStartX + 80, currentY + 5, { align: 'right', width: 120 });
+
+      currentY += 40;
+
+      // Payment information
+      doc.fontSize(10)
+         .fillColor(primaryColor)
+         .font('Helvetica-Bold')
+         .text('Payment Method:', margin, currentY)
+         .font('Helvetica')
+         .text(bill.paymentMethod, margin + 100, currentY);
+
+      if (bill.paidAmount) {
+        doc.text('Amount Paid:', margin, currentY + 15)
+           .text(`${currency}${parseFloat(bill.paidAmount).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
+                margin + 100, currentY + 15);
+      }
+
+      // Footer section
+      const footerY = doc.page.height - 100;
+      
+      doc.rect(0, footerY - 10, pageWidth, 60)
+         .fill('#F8F9FA');
+
+      doc.fontSize(9)
+         .fillColor(accentColor)
+         .text('Thank you for choosing Palaniappa Jewellers!', margin, footerY, { align: 'center', width: contentWidth })
+         .text('For any queries, please contact us at +91 95972 01554 or jewelerypalaniappa@gmail.com', 
+              margin, footerY + 15, { align: 'center', width: contentWidth });
+
+      // Terms and conditions
+      doc.fontSize(8)
+         .text('Terms & Conditions: All sales are final. Please inspect your purchase before leaving the store.', 
+              margin, footerY + 35, { width: contentWidth });
+
+      // Add subtle watermark
+      addWatermark();
+
+      // Add page numbers for multi-page documents
+      const pageCount = doc.bufferedPageRange().count;
+      for (let i = 0; i < pageCount; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(8)
+           .fillColor(accentColor)
+           .text(`Page ${i + 1} of ${pageCount}`, margin, doc.page.height - 30, 
+                 { align: 'center', width: contentWidth });
+      }
 
       doc.end();
     } catch (error) {

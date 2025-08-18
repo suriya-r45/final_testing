@@ -13,6 +13,7 @@ This is a jewelry management and e-commerce system for Palaniappa Jewellers. The
 - **Better Product Navigation**: Enhanced navigation from product cards to individual detail pages with improved user flow
 - **Stripe Configuration Fix**: Corrected Stripe public key configuration to resolve "secret key with Stripe.js" error
 - **Color Scheme Update**: Changed application theme to white-black-grey color palette for clean, modern appearance
+- **Enhanced PDF Bills**: Completely redesigned PDF invoice format with professional styling, elegant typography, proper branding, structured layout, and improved visual hierarchy
 
 # User Preferences
 
