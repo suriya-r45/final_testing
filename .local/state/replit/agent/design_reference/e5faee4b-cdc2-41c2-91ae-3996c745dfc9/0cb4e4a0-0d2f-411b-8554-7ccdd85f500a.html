@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palaniappa Jewellers - Premium Jewelry Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#000000',
+                        secondary: '#FFFFFF',
+                        accent: '#6B7280',
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        error: '#EF4444'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans">
+
+<!-- @COMPONENT: AppContainer [main application wrapper] -->
+<div id="app" class="min-h-screen">
+
+    <!-- @COMPONENT: Header [navigation and user authentication] -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <!-- Logo -->
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                            <span class="text-red-600 font-bold text-xl">P</span>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold text-black">PALANIAPPA JEWELLERS</h1>
+                            <p class="text-xs text-gray-500">Since 2025</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-700 hover:text-black transition-colors" data-nav="home">Home</a>
+                    <a href="#" class="text-gray-700 hover:text-black transition-colors" data-nav="products">Products</a>
+                    <a href="#" class="text-gray-700 hover:text-black transition-colors" data-nav="about">About</a>
+                    <a href="#" class="text-gray-700 hover:text-black transition-colors" data-nav="contact">Contact</a>
+                </nav>
+
+                <!-- Auth & Currency -->
+                <div class="flex items-center space-x-4">
+                    <!-- Currency Selector -->
+                    <select class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-black" data-bind="selectedCurrency">
+                        <option value="INR">₹ INR</option>
+                        <option value="BHD">BD BHD</option>
+                    </select>
+                    
+                    <!-- User Menu -->
+                    <div class="flex items-center space-x-2">
+                        <button class="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors" data-event="click:showLogin">
+                            <i class="fas fa-user mr-2"></i>Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: LoginModal [authentication modal] -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-black">Login</h2>
+                <p class="text-gray-600 mt-2">Choose your account type</p>
+            </div>
+
+            <!-- Login Type Selector -->
+            <div class="mb-6">
+                <div class="flex rounded-lg bg-gray-100 p-1">
+                    <button class="flex-1 py-2 px-4 rounded-md bg-white shadow-sm text-black font-medium" data-login-type="guest">Guest User</button>
+                    <button class="flex-1 py-2 px-4 rounded-md text-gray-600 font-medium" data-login-type="admin">Admin</button>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form class="space-y-4" data-form="login">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="Enter your email" data-bind="email" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="Enter your password" data-bind="password" required>
+                </div>
+                
+                <!-- Admin Credentials Display -->
+                <div class="admin-hint hidden bg-gray-50 p-3 rounded-md text-sm">
+                    <p class="text-gray-600"><strong>Admin Credentials:</strong></p>
+                    <p class="text-gray-700">Email: jewelerypalaniappa@gmail.com</p>
+                    <p class="text-gray-700">Password: P@lani@ppA@321</p>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button type="submit" class="flex-1 bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors">
+                        Login
+                    </button>
+                    <button type="button" class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors" data-event="click:closeLogin">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: LoginModal -->
+
+    <!-- @COMPONENT: MainContent [dynamic content container] -->
+    <main id="mainContent">
+
+        <!-- @COMPONENT: HeroSection [landing page hero] -->
+        <section class="relative bg-white py-20" id="heroSection">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h1 class="text-5xl font-bold text-black mb-6">Exquisite Jewelry Collection</h1>
+                    <p class="text-xl text-gray-600 mb-8">Discover timeless elegance with our premium selection of handcrafted jewelry pieces</p>
+                    
+                    <!-- Featured Categories -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                        <!-- Gold Jewelry -->
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                            <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300" alt="Gold Jewelry Collection" class="w-full h-48 object-cover" data-mock-image="true">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-black mb-2">Gold Collection</h3>
+                                <p class="text-gray-600 mb-4">22K & 18K gold jewelry with intricate designs</p>
+                                <button class="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors" data-event="click:viewCategory" data-category="gold">
+                                    View Collection
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Diamond Jewelry -->
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                            <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300" alt="Diamond Jewelry Collection" class="w-full h-48 object-cover" data-mock-image="true">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-black mb-2">Diamond Collection</h3>
+                                <p class="text-gray-600 mb-4">Certified diamonds with exceptional brilliance</p>
+                                <button class="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors" data-event="click:viewCategory" data-category="diamond">
+                                    View Collection
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Silver Jewelry -->
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                            <img src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300" alt="Silver Jewelry Collection" class="w-full h-48 object-cover" data-mock-image="true">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-black mb-2">Silver Collection</h3>
+                                <p class="text-gray-600 mb-4">925 sterling silver with contemporary designs</p>
+                                <button class="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors" data-event="click:viewCategory" data-category="silver">
+                                    View Collection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: HeroSection -->
+
+        <!-- @COMPONENT: ProductCatalog [main product listing] -->
+        <section class="py-16 bg-gray-50" id="productCatalog">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold text-black">Our Products</h2>
+                    <div class="flex items-center space-x-4">
+                        <!-- Filters -->
+                        <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" data-bind="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="rings">Rings</option>
+                            <option value="necklaces">Necklaces</option>
+                            <option value="earrings">Earrings</option>
+                            <option value="bracelets">Bracelets</option>
+                        </select>
+                        
+                        <select class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" data-bind="sortBy">
+                            <option value="featured">Featured</option>
+                            <option value="price_low">Price: Low to High</option>
+                            <option value="price_high">Price: High to Low</option>
+                            <option value="newest">Newest First</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Product Grid -->
+                <!-- @MAP: products.map(product => ( -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Sample Product Cards -->
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer" data-event="click:viewProduct" data-product-id="1">
+                        <div class="relative">
+                            <img src="https://pixabay.com/get/gac72d35f0ae91108d03dd6c720cee058e798fc9d3d30c8e9323b82152f0c472026d59b138d348683d08067c10c7fb610645dbd9b9a6644e3b670683e6c99b39f_1280.jpg" alt="Diamond Ring" class="w-full h-64 object-cover" data-mock-image="true">
+                            <div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                In Stock <span data-bind="product.stock">5</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-black mb-2" data-bind="product.name">Classic Diamond Ring</h3>
+                            <p class="text-gray-600 text-sm mb-3" data-bind="product.description">18K gold ring with 0.5ct diamond</p>
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="space-y-1">
+                                    <p class="text-xl font-bold text-black" data-bind="product.price.inr">₹45,000</p>
+                                    <p class="text-sm text-gray-500" data-bind="product.price.bhd">BD 160</p>
+                                </div>
+                                <button class="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors" data-event="click:whatsappInquiry" data-product-id="1">
+                                    <i class="fab fa-whatsapp mr-1"></i>Enquiry
+                                </button>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <p>Gross Weight: <span data-bind="product.grossWeight">8.5g</span></p>
+                                <p>Net Weight: <span data-bind="product.netWeight">7.2g</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer" data-event="click:viewProduct" data-product-id="2">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Gold Necklace" class="w-full h-64 object-cover" data-mock-image="true">
+                            <div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                In Stock <span data-bind="product.stock">3</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-black mb-2" data-bind="product.name">Gold Chain Necklace</h3>
+                            <p class="text-gray-600 text-sm mb-3" data-bind="product.description">22K gold traditional chain design</p>
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="space-y-1">
+                                    <p class="text-xl font-bold text-black" data-bind="product.price.inr">₹85,000</p>
+                                    <p class="text-sm text-gray-500" data-bind="product.price.bhd">BD 300</p>
+                                </div>
+                                <button class="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors" data-event="click:whatsappInquiry" data-product-id="2">
+                                    <i class="fab fa-whatsapp mr-1"></i>Enquiry
+                                </button>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <p>Gross Weight: <span data-bind="product.grossWeight">15.2g</span></p>
+                                <p>Net Weight: <span data-bind="product.netWeight">14.8g</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional product cards would be generated dynamically -->
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer" data-event="click:viewProduct" data-product-id="3">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Pearl Earrings" class="w-full h-64 object-cover" data-mock-image="true">
+                            <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                Limited Stock <span data-bind="product.stock">1</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-black mb-2" data-bind="product.name">Pearl Drop Earrings</h3>
+                            <p class="text-gray-600 text-sm mb-3" data-bind="product.description">Cultured pearls with gold settings</p>
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="space-y-1">
+                                    <p class="text-xl font-bold text-black" data-bind="product.price.inr">₹25,000</p>
+                                    <p class="text-sm text-gray-500" data-bind="product.price.bhd">BD 88</p>
+                                </div>
+                                <button class="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors" data-event="click:whatsappInquiry" data-product-id="3">
+                                    <i class="fab fa-whatsapp mr-1"></i>Enquiry
+                                </button>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <p>Gross Weight: <span data-bind="product.grossWeight">4.2g</span></p>
+                                <p>Net Weight: <span data-bind="product.netWeight">3.8g</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer" data-event="click:viewProduct" data-product-id="4">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Silver Bracelet" class="w-full h-64 object-cover" data-mock-image="true">
+                            <div class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                In Stock <span data-bind="product.stock">8</span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-black mb-2" data-bind="product.name">Silver Chain Bracelet</h3>
+                            <p class="text-gray-600 text-sm mb-3" data-bind="product.description">925 sterling silver with charm</p>
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="space-y-1">
+                                    <p class="text-xl font-bold text-black" data-bind="product.price.inr">₹8,500</p>
+                                    <p class="text-sm text-gray-500" data-bind="product.price.bhd">BD 30</p>
+                                </div>
+                                <button class="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors" data-event="click:whatsappInquiry" data-product-id="4">
+                                    <i class="fab fa-whatsapp mr-1"></i>Enquiry
+                                </button>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <p>Gross Weight: <span data-bind="product.grossWeight">12.1g</span></p>
+                                <p>Net Weight: <span data-bind="product.netWeight">11.5g</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+        </section>
+        <!-- @END_COMPONENT: ProductCatalog -->
+
+        <!-- @COMPONENT: AdminDashboard [admin management interface] -->
+        <section class="py-16 bg-white hidden" id="adminDashboard">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-3xl font-bold text-black">Admin Dashboard</h2>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">Welcome, <span data-bind="admin.name">Admin</span></span>
+                        <button class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors" data-event="click:logout">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Navigation -->
+                <div class="mb-8">
+                    <div class="flex space-x-4 border-b border-gray-200">
+                        <button class="pb-3 px-4 border-b-2 border-black text-black font-medium" data-tab="products">
+                            Products Management
+                        </button>
+                        <button class="pb-3 px-4 text-gray-600 hover:text-black transition-colors" data-tab="billing">
+                            Billing System
+                        </button>
+                        <button class="pb-3 px-4 text-gray-600 hover:text-black transition-colors" data-tab="bills">
+                            Bills History
+                        </button>
+                        <button class="pb-3 px-4 text-gray-600 hover:text-black transition-colors" data-tab="analytics">
+                            Analytics
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Management Tab -->
+                <div id="productsTab" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Add Product Form -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-xl font-semibold text-black mb-6">Add New Product</h3>
+                            <form class="space-y-4" data-form="addProduct">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="Enter product name" data-bind="product.name" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" data-bind="product.category" required>
+                                            <option value="">Select Category</option>
+                                            <option value="rings">Rings</option>
+                                            <option value="necklaces">Necklaces</option>
+                                            <option value="earrings">Earrings</option>
+                                            <option value="bracelets">Bracelets</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Description</label>
+                                    <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" rows="3" placeholder="Enter detailed description" data-bind="product.description" required></textarea>
+                                </div>
+
+                                <!-- Pricing Section -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Price (INR)</label>
+                                        <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="0" data-bind="product.price.inr" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Price (BHD)</label>
+                                        <input type="number" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="0.00" data-bind="product.price.bhd" required>
+                                    </div>
+                                </div>
+
+                                <!-- Weight Section -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Gross Weight (g)</label>
+                                        <input type="number" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="0.0" data-bind="product.grossWeight" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Net Weight (g)</label>
+                                        <input type="number" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="0.0" data-bind="product.netWeight" required>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
+                                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="0" data-bind="product.stock" required>
+                                </div>
+
+                                <!-- Image Upload -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                                        <input type="file" multiple accept="image/*" class="hidden" id="productImages" data-implementation="Real file upload component">
+                                        <label for="productImages" class="cursor-pointer">
+                                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                            <p class="text-gray-600">Click to upload images or drag and drop</p>
+                                            <p class="text-sm text-gray-500">PNG, JPG up to 10MB each</p>
+                                        </label>
+                                    </div>
+                                    <!-- Image Preview Area -->
+                                    <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 hidden" id="imagePreview">
+                                        <!-- @FUNCTIONALITY: Preview uploaded images here -->
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="w-full bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>Add Product
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Product List -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <h3 class="text-xl font-semibold text-black mb-6">Product Inventory</h3>
+                            <div class="space-y-4 max-h-96 overflow-y-auto">
+                                <!-- @MAP: adminProducts.map(product => ( -->
+                                <div class="bg-white rounded-lg p-4 shadow-sm">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-4">
+                                            <img src="https://images.unsplash.com/photo-1603561596112-db2eca6c9df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=60&h=60" alt="Product" class="w-15 h-15 rounded-lg object-cover" data-mock-image="true">
+                                            <div>
+                                                <h4 class="font-medium text-black" data-bind="product.name">Classic Diamond Ring</h4>
+                                                <p class="text-sm text-gray-600">Stock: <span data-bind="product.stock">5</span></p>
+                                                <p class="text-sm text-gray-600">₹<span data-bind="product.price.inr">45,000</span> | BD <span data-bind="product.price.bhd">160</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <button class="text-blue-600 hover:text-blue-800" data-event="click:editProduct" data-product-id="1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-600 hover:text-red-800" data-event="click:deleteProduct" data-product-id="1">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- @END_MAP )) -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing System Tab -->
+                <div id="billingTab" class="tab-content hidden">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-black mb-6">Create New Bill</h3>
+                        <form class="space-y-6" data-form="createBill">
+                            <!-- Customer Information -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <h4 class="text-lg font-medium text-black">Customer Information</h4>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Customer Name</label>
+                                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="Enter customer name" data-bind="bill.customerName" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                        <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="customer@email.com" data-bind="bill.customerEmail" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                        <input type="tel" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="+91 98765 43210" data-bind="bill.customerPhone" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" rows="3" placeholder="Enter full address" data-bind="bill.customerAddress" required></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Bill Settings -->
+                                <div class="space-y-4">
+                                    <h4 class="text-lg font-medium text-black">Bill Settings</h4>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" data-bind="bill.currency" required>
+                                            <option value="INR">Indian Rupees (INR)</option>
+                                            <option value="BHD">Bahrain Dinar (BHD)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Bill Date</label>
+                                        <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" data-bind="bill.date" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Making Charges (%)</label>
+                                        <input type="number" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="12.0" data-bind="bill.makingCharges" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">GST (%)</label>
+                                        <input type="number" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" placeholder="3.0" data-bind="bill.gst" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Product Selection -->
+                            <div>
+                                <h4 class="text-lg font-medium text-black mb-4">Select Products</h4>
+                                <div class="border border-gray-300 rounded-lg p-4 max-h-60 overflow-y-auto">
+                                    <!-- @MAP: availableProducts.map(product => ( -->
+                                    <div class="flex items-center justify-between p-3 border-b border-gray-200 last:border-b-0">
+                                        <div class="flex items-center space-x-3">
+                                            <input type="checkbox" class="w-4 h-4 text-black focus:ring-black border-gray-300 rounded" data-bind="selectedProducts" value="1">
+                                            <img src="https://images.unsplash.com/photo-1603561596112-db2eca6c9df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=50&h=50" alt="Product" class="w-12 h-12 rounded object-cover" data-mock-image="true">
+                                            <div>
+                                                <p class="font-medium text-black" data-bind="product.name">Classic Diamond Ring</p>
+                                                <p class="text-sm text-gray-600">₹<span data-bind="product.price.inr">45,000</span> | BD <span data-bind="product.price.bhd">160</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <label class="text-sm text-gray-600">Qty:</label>
+                                            <input type="number" min="1" value="1" class="w-16 px-2 py-1 border border-gray-300 rounded text-center" data-bind="product.quantity">
+                                        </div>
+                                    </div>
+                                    <!-- @END_MAP )) -->
+                                </div>
+                            </div>
+
+                            <!-- Bill Actions -->
+                            <div class="flex space-x-4">
+                                <button type="button" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors" data-event="click:previewBill">
+                                    <i class="fas fa-eye mr-2"></i>Preview Bill
+                                </button>
+                                <button type="submit" class="flex-1 bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors">
+                                    <i class="fas fa-file-invoice mr-2"></i>Generate Bill
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Bills History Tab -->
+                <div id="billsTab" class="tab-content hidden">
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-black">Bills History</h3>
+                            <div class="flex items-center space-x-4">
+                                <input type="search" placeholder="Search bills..." class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" data-bind="billSearch">
+                                <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black" data-bind="billFilter">
+                                    <option value="">All Bills</option>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Bills Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full bg-white rounded-lg shadow-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Bill No.</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Customer</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Date</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Amount</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Currency</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <!-- @MAP: bills.map(bill => ( -->
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 text-sm font-medium text-black" data-bind="bill.number">INV-001</td>
+                                        <td class="px-4 py-3 text-sm text-gray-700" data-bind="bill.customerName">Arputha Mary P</td>
+                                        <td class="px-4 py-3 text-sm text-gray-700" data-bind="bill.date">10/08/2024</td>
+                                        <td class="px-4 py-3 text-sm font-medium text-black" data-bind="bill.total">₹46,510.00</td>
+                                        <td class="px-4 py-3 text-sm text-gray-700" data-bind="bill.currency">INR</td>
+                                        <td class="px-4 py-3 text-sm">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="text-blue-600 hover:text-blue-800" data-event="click:previewBill" data-bill-id="1" title="Preview">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="text-green-600 hover:text-green-800" data-event="click:downloadBill" data-bill-id="1" title="Download">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                                <button class="text-gray-600 hover:text-gray-800" data-event="click:printBill" data-bill-id="1" title="Print">
+                                                    <i class="fas fa-print"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- @END_COMPONENT: AdminDashboard -->
+
+        <!-- @COMPONENT: BillPreviewModal [bill preview and download] -->
+        <div id="billPreviewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+                <div class="sticky top-0 bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-black">Bill Preview</h3>
+                    <div class="flex items-center space-x-4">
+                        <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors" data-event="click:downloadBillPDF">
+                            <i class="fas fa-download mr-2"></i>Download PDF
+                        </button>
+                        <button class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors" data-event="click:printBill">
+                            <i class="fas fa-print mr-2"></i>Print
+                        </button>
+                        <button class="text-gray-600 hover:text-black" data-event="click:closeBillPreview">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bill Content (A4 Format) -->
+                <div class="p-8" id="billContent" style="width: 210mm; margin: 0 auto; background: white;">
+                    <!-- Bill Header -->
+                    <div class="text-center mb-6">
+                        <div class="flex justify-center items-center mb-4">
+                            <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mr-4">
+                                <span class="text-red-600 font-bold text-2xl">P</span>
+                            </div>
+                            <div>
+                                <h1 class="text-2xl font-bold text-black">PALANIAPPA JEWELLERS</h1>
+                                <p class="text-sm text-gray-600">Since 2025</p>
+                            </div>
+                        </div>
+                        <div class="text-right text-xs text-gray-600">
+                            <p>CUSTOMER COPY</p>
+                            <p>DOC:AL2356 Date : <span data-bind="bill.date">10/08/2024 8:07 pm</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Bill Information -->
+                    <div class="border border-gray-300 mb-4">
+                        <div class="bg-gray-100 p-2">
+                            <h2 class="font-bold text-black">TAX INVOICE</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 p-4">
+                            <!-- Company Details -->
+                            <div class="text-xs">
+                                <p><strong>TITAN COMPANY LIMITED</strong></p>
+                                <p>AVK ARCADE 315 C</p>
+                                <p>KOMALIK MAIN ROAD OPP NEW BUS STAND</p>
+                                <p>KOMALIK MAIN ROAD OPP NEW BUS STAND</p>
+                                <p>PINCODE : 634004</p>
+                                <p>Phone Number: 04257-233324</p>
+                                <p>GSTIN : 33AAACT5712A124</p>
+                                <p>CIN Code : 532</p>
+                                <p>DL NO : TNK2 STGAPL00456</p>
+                            </div>
+
+                            <!-- Customer Details -->
+                            <div class="text-xs">
+                                <p><strong>CUSTOMER DETAILS:</strong></p>
+                                <p data-bind="bill.customerName">ARPUTHA MARY P</p>
+                                <p data-bind="bill.customerPhone">127</p>
+                                <p>NIL</p>
+                                <p data-bind="bill.customerAddress">NARAYANA PILLAI STREET PERAMBUR</p>
+                                <p>Salem : 636007, TAMIL NADU</p>
+                                <p>Phone Number: <span data-bind="bill.customerPhone">9443569501</span></p>
+                                <p>CIN Code : 227</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Table -->
+                    <div class="border border-gray-300 mb-4">
+                        <table class="w-full text-xs">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="border border-gray-300 p-1 text-left">Product Description</th>
+                                    <th class="border border-gray-300 p-1">Purity%</th>
+                                    <th class="border border-gray-300 p-1">Qty</th>
+                                    <th class="border border-gray-300 p-1">Gross Weight(gms)</th>
+                                    <th class="border border-gray-300 p-1">Net Weight(gms)</th>
+                                    <th class="border border-gray-300 p-1">Product Price</th>
+                                    <th class="border border-gray-300 p-1">Making Charges (%)</th>
+                                    <th class="border border-gray-300 p-1">Discount Rate(%)</th>
+                                    <th class="border border-gray-300 p-1">SGST (1.5%)</th>
+                                    <th class="border border-gray-300 p-1">CGST (1.5%)</th>
+                                    <th class="border border-gray-300 p-1">Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- @MAP: billItems.map(item => ( -->
+                                <tr>
+                                    <td class="border border-gray-300 p-1" data-bind="item.description">512D138954400 FINGER RING 316</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.purity">91+ Dimsah 1112 to/G</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.quantity">1N</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.grossWeight">4.042</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.netWeight">0.000</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.price">4.042</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.makingCharges">31606.34</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.discount">20.00%</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.sgst">1186.10</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.cgst">453.98</td>
+                                    <td class="border border-gray-300 p-1 text-center" data-bind="item.value">31173.20</td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+                                
+                                <!-- Total Row -->
+                                <tr class="bg-gray-50">
+                                    <td class="border border-gray-300 p-1 font-bold">Total</td>
+                                    <td class="border border-gray-300 p-1 text-center">2N</td>
+                                    <td class="border border-gray-300 p-1 text-center">6.017</td>
+                                    <td class="border border-gray-300 p-1 text-center">0.000</td>
+                                    <td class="border border-gray-300 p-1 text-center">6.017</td>
+                                    <td class="border border-gray-300 p-1 text-center">44879.98</td>
+                                    <td class="border border-gray-300 p-1 text-center">20.00% 81.60% GST</td>
+                                    <td class="border border-gray-300 p-1 text-center">1769.62</td>
+                                    <td class="border border-gray-300 p-1 text-center">677.33</td>
+                                    <td class="border border-gray-300 p-1 text-center">677.33</td>
+                                    <td class="border border-gray-300 p-1 text-center font-bold">46510.02</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Payment Details -->
+                    <div class="grid grid-cols-2 gap-4 text-xs">
+                        <div class="border border-gray-300 p-2">
+                            <p><strong>Payment Details</strong></p>
+                            <table class="w-full mt-2">
+                                <tr>
+                                    <td>Payment Mode</td>
+                                    <td>Doc No</td>
+                                    <td>Customer Name</td>
+                                    <td>Amount (Rs.)</td>
+                                </tr>
+                                <tr>
+                                    <td>CASH</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td data-bind="bill.paidAmount">46,510.00</td>
+                                </tr>
+                                <tr>
+                                    <td>CASH</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>10.00</td>
+                                </tr>
+                                <tr class="font-bold">
+                                    <td colspan="3">Total Amount Paid</td>
+                                    <td data-bind="bill.totalPaid">46,510.00</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="border border-gray-300 p-2">
+                            <p><strong>Additional Other Charges</strong></p>
+                            <table class="w-full mt-2">
+                                <tr>
+                                    <td>Other charges:</td>
+                                    <td>0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Total Other charges value</td>
+                                    <td>0.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Net invoice values</td>
+                                    <td data-bind="bill.netTotal">46,510.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Discount Details - PRODUCT LEVEL DISCOUNT: 1583.58 BILL LEVEL DISCOUNT: 180.64</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Hra charges discount :</td>
+                                    <td>45.09</td>
+                                </tr>
+                                <tr class="font-bold">
+                                    <td>Total Amount to be paid</td>
+                                    <td data-bind="bill.finalAmount">46,510.00</td>
+                                </tr>
+                            </table>
+                            <p class="mt-2 text-xs">Value in words :- Rupees forty-six thousand five hundred and ten Only</p>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="mt-6 text-center text-xs text-gray-600">
+                        <p>Corporate Office : TITAN COMPANY LIMITED, Integrity - #1193, Veersandra Electronics City P.O., Off Hosur Main Road Bangalore 560100, India , Tel +91 80 67667200, Fax +91 80 67666262</p>
+                        <p>*CIPS - Gold/Platinum/Silver *HH - Hallmark</p>
+                        <div class="text-right mt-4">
+                            <p>E&OE See Overleaf</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: BillPreviewModal -->
+
+    </main>
+    <!-- @END_COMPONENT: MainContent -->
+
+    <!-- @COMPONENT: Footer [website footer] -->
+    <footer class="bg-black text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                            <span class="text-red-600 font-bold">P</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold">PALANIAPPA JEWELLERS</h3>
+                            <p class="text-xs text-gray-400">Since 2025</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 text-sm">Premium jewelry crafted with precision and elegance for discerning customers worldwide.</p>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Products</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Categories</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Gold Jewelry</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Diamond Jewelry</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Silver Jewelry</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Custom Designs</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Info</h4>
+                    <div class="space-y-2 text-sm text-gray-400">
+                        <p><i class="fas fa-phone mr-2"></i>+919597201554</p>
+                        <p><i class="fas fa-envelope mr-2"></i>jewelerypalaniappa@gmail.com</p>
+                        <p><i class="fas fa-map-marker-alt mr-2"></i>123 Jewelry Street, Chennai</p>
+                        <div class="flex space-x-4 mt-4">
+                            <a href="https://wa.me/919597201554" class="text-green-500 hover:text-green-400 transition-colors">
+                                <i class="fab fa-whatsapp text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2025 Palaniappa Jewellers. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+</div>
+<!-- @END_COMPONENT: AppContainer -->
+
+<script>
+(function() {
+    // @STATE: currentUser:object = null, isLoggedIn:boolean = false, userType:string = 'guest'
+    // @STATE: selectedCurrency:string = 'INR', products:array = [], bills:array = []
+    // @STATE: showLoginModal:boolean = false, currentView:string = 'home'
+
+    let appState = {
+        currentUser: null,
+        isLoggedIn: false,
+        userType: 'guest',
+        selectedCurrency: 'INR',
+        products: [],
+        bills: [],
+        showLoginModal: false,
+        currentView: 'home',
+        selectedLoginType: 'guest'
+    };
+
+    // Admin credentials configuration
+    const ADMIN_CREDENTIALS = {
+        email: 'jewelerypalaniappa@gmail.com',
+        password: 'P@lani@ppA@321'
+    };
+
+    // WhatsApp configuration
+    const WHATSAPP_CONFIG = {
+        number: '+919597201554',
+        greeting: 'Hello! Thank you for your interest in our jewelry. How can we help you today?'
+    };
+
+    // Initialize app
+    function initializeApp() {
+        setupEventListeners();
+        loadSampleData();
+        updateUI();
+    }
+
+    function setupEventListeners() {
+        // Login modal
+        document.querySelector('[data-event="click:showLogin"]')?.addEventListener('click', showLoginModal);
+        document.querySelector('[data-event="click:closeLogin"]')?.addEventListener('click', closeLoginModal);
+        
+        // Login type selector
+        document.querySelectorAll('[data-login-type]').forEach(btn => {
+            btn.addEventListener('click', (e) => selectLoginType(e.target.dataset.loginType));
+        });
+
+        // Login form
+        document.querySelector('[data-form="login"]')?.addEventListener('submit', handleLogin);
+
+        // Currency selector
+        document.querySelector('[data-bind="selectedCurrency"]')?.addEventListener('change', (e) => {
+            appState.selectedCurrency = e.target.value;
+            updatePriceDisplay();
+        });
+
+        // Admin dashboard tabs
+        document.querySelectorAll('[data-tab]').forEach(tab => {
+            tab.addEventListener('click', (e) => switchTab(e.target.dataset.tab));
+        });
+
+        // Product management
+        document.querySelector('[data-form="addProduct"]')?.addEventListener('submit', handleAddProduct);
+
+        // Billing system
+        document.querySelector('[data-form="createBill"]')?.addEventListener('submit', handleCreateBill);
+        document.querySelector('[data-event="click:previewBill"]')?.addEventListener('click', previewBill);
+
+        // Bill preview modal
+        document.querySelector('[data-event="click:closeBillPreview"]')?.addEventListener('click', closeBillPreview);
+        document.querySelector('[data-event="click:downloadBillPDF"]')?.addEventListener('click', downloadBillPDF);
+
+        // WhatsApp inquiries
+        document.querySelectorAll('[data-event="click:whatsappInquiry"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const productId = e.target.closest('[data-product-id]').dataset.productId;
+                handleWhatsAppInquiry(productId);
+            });
+        });
+
+        // File upload handling
+        document.getElementById('productImages')?.addEventListener('change', handleImageUpload);
+    }
+
+    function loadSampleData() {
+        // Sample products
+        appState.products = [
+            {
+                id: 1,
+                name: 'Classic Diamond Ring',
+                description: '18K gold ring with 0.5ct diamond',
+                category: 'rings',
+                price: { inr: 45000, bhd: 160 },
+                grossWeight: 8.5,
+                netWeight: 7.2,
+                stock: 5,
+                image: 'https://images.unsplash.com/photo-1603561596112-db2eca6c9df4'
+            },
+            {
+                id: 2,
+                name: 'Gold Chain Necklace',
+                description: '22K gold traditional chain design',
+                category: 'necklaces',
+                price: { inr: 85000, bhd: 300 },
+                grossWeight: 15.2,
+                netWeight: 14.8,
+                stock: 3,
+                image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f'
+            }
+        ];
+
+        // Sample bills
+        appState.bills = [
+            {
+                id: 1,
+                number: 'INV-001',
+                customerName: 'Arputha Mary P',
+                customerEmail: 'arputha@email.com',
+                customerPhone: '9443569501',
+                customerAddress: 'Narayana Pillai Street, Perambur, Salem - 636007',
+                date: '2024-08-10',
+                currency: 'INR',
+                total: 46510.00,
+                items: []
+            }
+        ];
+    }
+
+    function showLoginModal() {
+        appState.showLoginModal = true;
+        document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function closeLoginModal() {
+        appState.showLoginModal = false;
+        document.getElementById('loginModal').classList.add('hidden');
+    }
+
+    function selectLoginType(type) {
+        appState.selectedLoginType = type;
+        
+        // Update button states
+        document.querySelectorAll('[data-login-type]').forEach(btn => {
+            btn.className = btn.dataset.loginType === type 
+                ? 'flex-1 py-2 px-4 rounded-md bg-white shadow-sm text-black font-medium'
+                : 'flex-1 py-2 px-4 rounded-md text-gray-600 font-medium';
+        });
+
+        // Show/hide admin credentials hint
+        const adminHint = document.querySelector('.admin-hint');
+        if (adminHint) {
+            adminHint.classList.toggle('hidden', type !== 'admin');
+        }
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const email = formData.get('email') || e.target.querySelector('[data-bind="email"]').value;
+        const password = formData.get('password') || e.target.querySelector('[data-bind="password"]').value;
+
+        if (appState.selectedLoginType === 'admin') {
+            // Admin authentication
+            if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+                appState.currentUser = { email, name: 'Admin', type: 'admin' };
+                appState.isLoggedIn = true;
+                appState.userType = 'admin';
+                showAdminDashboard();
+                closeLoginModal();
+                alert('Admin login successful!');
+            } else {
+                alert('Invalid admin credentials. Please check your email and password.');
+                return;
+            }
+        } else {
+            // Guest authentication (basic validation)
+            if (email && password) {
+                appState.currentUser = { email, name: email.split('@')[0], type: 'guest' };
+                appState.isLoggedIn = true;
+                appState.userType = 'guest';
+                closeLoginModal();
+                alert('Guest login successful!');
+            } else {
+                alert('Please enter valid email and password.');
+                return;
+            }
+        }
+
+        updateUI();
+    }
+
+    function showAdminDashboard() {
+        appState.currentView = 'admin';
+        
+        // Hide other sections
+        document.getElementById('heroSection')?.classList.add('hidden');
+        document.getElementById('productCatalog')?.classList.add('hidden');
+        
+        // Show admin dashboard
+        document.getElementById('adminDashboard')?.classList.remove('hidden');
+    }
+
+    function switchTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll('[data-tab]').forEach(btn => {
+            btn.className = btn.dataset.tab === tabName
+                ? 'pb-3 px-4 border-b-2 border-black text-black font-medium'
+                : 'pb-3 px-4 text-gray-600 hover:text-black transition-colors';
+        });
+
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        // Show selected tab
+        const tabMap = {
+            'products': 'productsTab',
+            'billing': 'billingTab',
+            'bills': 'billsTab',
+            'analytics': 'analyticsTab'
+        };
+        
+        const targetTab = document.getElementById(tabMap[tabName]);
+        if (targetTab) {
+            targetTab.classList.remove('hidden');
+        }
+    }
+
+    function handleAddProduct(e) {
+        e.preventDefault();
+        
+        // TODO: Implement product addition logic
+        // This would typically validate form data and add to database
+        alert('Product addition functionality would be implemented here with proper backend integration.');
+        
+        // Reset form
+        e.target.reset();
+    }
+
+    function handleCreateBill(e) {
+        e.preventDefault();
+        
+        // TODO: Implement bill creation logic
+        alert('Bill creation functionality would be implemented here with proper calculations and database storage.');
+    }
+
+    function previewBill() {
+        // Show bill preview modal
+        document.getElementById('billPreviewModal')?.classList.remove('hidden');
+    }
+
+    function closeBillPreview() {
+        document.getElementById('billPreviewModal')?.classList.add('hidden');
+    }
+
+    function downloadBillPDF() {
+        // TODO: Implement PDF generation and download
+        // This would use a library like jsPDF or send to backend for PDF generation
+        alert('PDF download functionality would be implemented here. The file would be named as CustomerName_BillNumber.pdf');
+    }
+
+    function handleWhatsAppInquiry(productId) {
+        const product = appState.products.find(p => p.id == productId);
+        if (product) {
+            const message = `${WHATSAPP_CONFIG.greeting}\n\nI'm interested in: ${product.name}\nPrice: ₹${product.price.inr} / BD ${product.price.bhd}`;
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${WHATSAPP_CONFIG.number.replace('+', '')}?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    }
+
+    function handleImageUpload(e) {
+        const files = Array.from(e.target.files);
+        const previewContainer = document.getElementById('imagePreview');
+        
+        if (files.length > 0 && previewContainer) {
+            previewContainer.classList.remove('hidden');
+            previewContainer.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'relative';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-20 object-cover rounded border">
+                        <button type="button" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs" onclick="this.parentElement.remove()">×</button>
+                    `;
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    }
+
+    function updatePriceDisplay() {
+        // Update all price displays based on selected currency
+        document.querySelectorAll('[data-bind="product.price.inr"], [data-bind="product.price.bhd"]').forEach(element => {
+            // TODO: Update price display based on selected currency
+        });
+    }
+
+    function updateUI() {
+        // Update login button text based on login status
+        const loginBtn = document.querySelector('[data-event="click:showLogin"]');
+        if (loginBtn && appState.isLoggedIn) {
+            loginBtn.innerHTML = `<i class="fas fa-user mr-2"></i>${appState.currentUser.name}`;
+        }
+    }
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    // Export for debugging (remove in production)
+    window.jewelryApp = {
+        state: appState,
+        functions: {
+            showLoginModal,
+            closeLoginModal,
+            handleLogin,
+            showAdminDashboard,
+            switchTab
+        }
+    };
+})();
+</script>
+
+</body>
+</html>
