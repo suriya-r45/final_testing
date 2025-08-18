@@ -36,6 +36,14 @@ function CheckoutForm() {
     phone: '',
     address: ''
   });
+  
+  // Auto-detect Indian user based on phone number
+  useEffect(() => {
+    if (customerInfo.phone.startsWith('+91') || customerInfo.phone.startsWith('91') || 
+        (customerInfo.phone.length === 10 && /^[6-9]/.test(customerInfo.phone))) {
+      setIsIndianUser(true);
+    }
+  }, [customerInfo.phone]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,13 +89,72 @@ function CheckoutForm() {
         }
       } else {
         // Handle Indian payment methods (GPay, PhonePe, Paytm)
-        // In a real implementation, you would integrate with respective payment gateways
-        toast({
-          title: "Redirecting to Payment",
-          description: `Opening ${paymentMethod === 'gpay' ? 'Google Pay' : paymentMethod === 'phonepe' ? 'PhonePe' : 'Paytm'}...`,
-        });
+        const amount = totalAmount;
+        const merchantInfo = {
+          name: "Palaniappa Jewellers",
+          vpa: "jewelrypalaniappa@ybl", // Example UPI ID
+          merchantCode: "PALANIAPPA"
+        };
+
+        if (paymentMethod === 'gpay') {
+          // Google Pay UPI deep link
+          const gpayUrl = `googlepay://pay?pa=${merchantInfo.vpa}&pn=${encodeURIComponent(merchantInfo.name)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Jewelry Purchase from Palaniappa Jewellers')}`;
+          
+          toast({
+            title: "Redirecting to Google Pay",
+            description: "Opening Google Pay app...",
+          });
+          
+          // Try to open GPay app, fallback to web
+          window.location.href = gpayUrl;
+          
+          // Fallback to web version if app doesn't open
+          setTimeout(() => {
+            if (document.hidden === false) {
+              window.open(`https://pay.google.com/about/`, '_blank');
+            }
+          }, 1000);
+        } 
         
-        // Simulate payment processing for demo
+        else if (paymentMethod === 'phonepe') {
+          // PhonePe UPI deep link
+          const phonePeUrl = `phonepe://pay?pa=${merchantInfo.vpa}&pn=${encodeURIComponent(merchantInfo.name)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Jewelry Purchase')}`;
+          
+          toast({
+            title: "Redirecting to PhonePe",
+            description: "Opening PhonePe app...",
+          });
+          
+          window.location.href = phonePeUrl;
+          
+          // Fallback to web version
+          setTimeout(() => {
+            if (document.hidden === false) {
+              window.open(`https://www.phonepe.com/`, '_blank');
+            }
+          }, 1000);
+        } 
+        
+        else if (paymentMethod === 'paytm') {
+          // Paytm UPI deep link
+          const paytmUrl = `paytmmp://pay?pa=${merchantInfo.vpa}&pn=${encodeURIComponent(merchantInfo.name)}&am=${amount}&cu=INR&tn=${encodeURIComponent('Jewelry Purchase')}`;
+          
+          toast({
+            title: "Redirecting to Paytm",
+            description: "Opening Paytm app...",
+          });
+          
+          window.location.href = paytmUrl;
+          
+          // Fallback to web version
+          setTimeout(() => {
+            if (document.hidden === false) {
+              window.open(`https://paytm.com/`, '_blank');
+            }
+          }, 1000);
+        }
+        
+        // Simulate payment completion for demo (in real app, this would be handled by webhook)
         setTimeout(() => {
           clearCart();
           toast({
@@ -95,7 +162,7 @@ function CheckoutForm() {
             description: "Thank you for your purchase!",
           });
           setLocation('/order-success');
-        }, 2000);
+        }, 3000);
       }
     } catch (error) {
       toast({
@@ -276,11 +343,15 @@ function CheckoutForm() {
 
                   <Button
                     type="submit"
-                    disabled={!stripe || isProcessing}
+                    disabled={paymentMethod === 'stripe' ? !stripe || isProcessing : isProcessing}
                     className="w-full"
                     data-testid="button-pay"
                   >
-                    {isProcessing ? 'Processing...' : `Pay ${formatPrice(totalAmount, 'INR')}`}
+                    {isProcessing ? 'Processing...' : 
+                     paymentMethod === 'stripe' ? `Pay ${formatPrice(totalAmount, 'INR')}` :
+                     paymentMethod === 'gpay' ? `Pay with Google Pay ${formatPrice(totalAmount, 'INR')}` :
+                     paymentMethod === 'phonepe' ? `Pay with PhonePe ${formatPrice(totalAmount, 'INR')}` :
+                     `Pay with Paytm ${formatPrice(totalAmount, 'INR')}`}
                   </Button>
                 </form>
               </CardContent>
