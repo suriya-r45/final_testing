@@ -406,112 +406,170 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       currentY += 55;
 
-      // Customer and Company details in elegant boxes
-      const boxHeight = 100;
+      // Enhanced Customer and Company details with better spacing
+      const boxHeight = 120;
+      const boxWidth = (contentWidth - 20) / 2;
       
-      // Company details box
-      doc.rect(margin, currentY, contentWidth/2 - 10, boxHeight)
-         .stroke(accentColor);
+      // Company details box with shadow effect
+      doc.rect(margin, currentY, boxWidth, boxHeight)
+         .fill('#FFFFFF')
+         .stroke('#D0D0D0');
       
-      doc.fillColor(lightGray)
-         .rect(margin, currentY, contentWidth/2 - 10, 25)
+      // Company header
+      doc.fillColor(darkGray)
+         .rect(margin, currentY, boxWidth, 30)
          .fill();
       
-      doc.fillColor(darkGray)
-         .fontSize(11)
+      doc.fillColor('#FFFFFF')
+         .fontSize(12)
          .font('Helvetica-Bold')
-         .text('BILLED FROM', margin + 10, currentY + 8);
+         .text('BILLED FROM', margin + 15, currentY + 10);
 
+      // Company details with proper spacing
+      doc.fontSize(11)
+         .font('Helvetica-Bold')
+         .fillColor(primaryColor)
+         .text('PALANIAPPA JEWELLERS', margin + 15, currentY + 42);
+         
       doc.fontSize(10)
          .font('Helvetica')
-         .fillColor(primaryColor)
-         .text('PALANIAPPA JEWELLERS', margin + 10, currentY + 35)
-         .text('Premium Jewelry Store', margin + 10, currentY + 50)
-         .text('Chennai, Tamil Nadu - 600001', margin + 10, currentY + 65)
-         .text('GSTIN: 33AAACT5712A124', margin + 10, currentY + 80);
+         .fillColor(accentColor)
+         .text('Premium Jewelry & Ornaments', margin + 15, currentY + 58)
+         .text('123 Jewelry Street', margin + 15, currentY + 72)
+         .text('Chennai, Tamil Nadu - 600001', margin + 15, currentY + 86)
+         .text('GSTIN: 33AAACT5712A124', margin + 15, currentY + 100);
 
-      // Customer details box
-      const customerBoxX = margin + contentWidth/2 + 10;
+      // Customer details box with shadow effect
+      const customerBoxX = margin + boxWidth + 20;
       
-      doc.rect(customerBoxX, currentY, contentWidth/2 - 10, boxHeight)
-         .stroke(accentColor);
+      doc.rect(customerBoxX, currentY, boxWidth, boxHeight)
+         .fill('#FFFFFF')
+         .stroke('#D0D0D0');
       
-      doc.fillColor(lightGray)
-         .rect(customerBoxX, currentY, contentWidth/2 - 10, 25)
+      // Customer header
+      doc.fillColor(darkGray)
+         .rect(customerBoxX, currentY, boxWidth, 30)
          .fill();
       
-      doc.fillColor(darkGray)
-         .fontSize(11)
+      doc.fillColor('#FFFFFF')
+         .fontSize(12)
          .font('Helvetica-Bold')
-         .text('BILLED TO', customerBoxX + 10, currentY + 8);
+         .text('BILLED TO', customerBoxX + 15, currentY + 10);
 
+      // Customer details with proper spacing
+      doc.fontSize(11)
+         .font('Helvetica-Bold')
+         .fillColor(primaryColor)
+         .text(bill.customerName || 'N/A', customerBoxX + 15, currentY + 42);
+         
       doc.fontSize(10)
          .font('Helvetica')
-         .fillColor(primaryColor)
-         .text(bill.customerName, customerBoxX + 10, currentY + 35)
-         .text(bill.customerEmail, customerBoxX + 10, currentY + 50)
-         .text(bill.customerPhone, customerBoxX + 10, currentY + 65)
-         .text(bill.customerAddress, customerBoxX + 10, currentY + 80, { width: contentWidth/2 - 30 });
+         .fillColor(accentColor)
+         .text(bill.customerEmail || 'N/A', customerBoxX + 15, currentY + 58, { 
+           width: boxWidth - 30, 
+           ellipsis: true 
+         })
+         .text(bill.customerPhone || 'N/A', customerBoxX + 15, currentY + 72)
+         .text(bill.customerAddress || 'N/A', customerBoxX + 15, currentY + 86, { 
+           width: boxWidth - 30, 
+           height: 25,
+           ellipsis: true 
+         });
 
       currentY += boxHeight + 30;
 
       // Items table with professional styling
-      const tableHeaders = ['Description', 'Qty', 'Rate', 'Amount'];
-      const colWidths = [250, 60, 100, 100];
+      const tableHeaders = ['Description', 'Qty', 'Unit Price', 'Amount'];
+      const colWidths = [280, 70, 110, 110]; // Adjusted widths
       const tableStartX = margin;
       
-      // Table header background
-      doc.rect(tableStartX, currentY, contentWidth, 30)
+      // Table header background with rounded corners effect
+      doc.rect(tableStartX, currentY, contentWidth, 35)
          .fill(darkGray);
 
-      // Table headers
+      // Table headers with better spacing
       doc.fillColor('#FFFFFF')
-         .fontSize(11)
+         .fontSize(12)
          .font('Helvetica-Bold');
       
-      let headerX = tableStartX + 10;
+      let headerX = tableStartX + 15;
       tableHeaders.forEach((header, i) => {
-        doc.text(header, headerX, currentY + 10);
+        if (i === 0) {
+          doc.text(header, headerX, currentY + 12);
+        } else {
+          doc.text(header, headerX, currentY + 12, { 
+            align: i > 1 ? 'right' : 'center', 
+            width: colWidths[i] - 20 
+          });
+        }
         headerX += colWidths[i];
       });
 
-      currentY += 30;
+      currentY += 35;
 
-      // Table rows
-      doc.fontSize(10)
+      // Table rows with improved spacing
+      doc.fontSize(11)
          .font('Helvetica')
          .fillColor(primaryColor);
 
       let rowIndex = 0;
       bill.items.forEach((item) => {
         const rowY = currentY;
-        const rowBg = rowIndex % 2 === 0 ? '#FFFFFF' : '#F9F9F9';
+        const rowHeight = 35; // Increased row height
+        const rowBg = rowIndex % 2 === 0 ? '#FFFFFF' : '#F8F9FA';
         
-        // Row background
-        doc.rect(tableStartX, rowY, contentWidth, 25)
+        // Row background with subtle border
+        doc.rect(tableStartX, rowY, contentWidth, rowHeight)
            .fill(rowBg);
+        
+        // Add subtle row border
+        doc.moveTo(tableStartX, rowY + rowHeight)
+           .lineTo(tableStartX + contentWidth, rowY + rowHeight)
+           .strokeColor('#E0E0E0')
+           .lineWidth(0.5)
+           .stroke();
 
-        // Row data
-        let cellX = tableStartX + 10;
+        // Row data with better alignment
+        let cellX = tableStartX + 15;
         const rate = bill.currency === 'INR' ? parseFloat(item.priceInr) : parseFloat(item.priceBhd);
         const currency = bill.currency === 'INR' ? '₹' : 'BD ';
         
+        // Product name (left aligned)
         doc.fillColor(primaryColor)
-           .text(item.productName, cellX, rowY + 8, { width: colWidths[0] - 15 });
+           .fontSize(11)
+           .font('Helvetica')
+           .text(item.productName, cellX, rowY + 12, { 
+             width: colWidths[0] - 30,
+             ellipsis: true 
+           });
         cellX += colWidths[0];
         
-        doc.text(item.quantity.toString(), cellX, rowY + 8, { align: 'center', width: colWidths[1] });
+        // Quantity (center aligned)
+        doc.text(item.quantity.toString(), cellX, rowY + 12, { 
+          align: 'center', 
+          width: colWidths[1] - 20 
+        });
         cellX += colWidths[1];
         
+        // Unit price (right aligned)
         doc.text(`${currency}${rate.toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
-                cellX, rowY + 8, { align: 'right', width: colWidths[2] - 10 });
+                cellX, rowY + 12, { 
+                  align: 'right', 
+                  width: colWidths[2] - 20 
+                });
         cellX += colWidths[2];
         
-        doc.text(`${currency}${parseFloat(item.total).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
-                cellX, rowY + 8, { align: 'right', width: colWidths[3] - 10 });
+        // Total amount (right aligned, bold)
+        doc.font('Helvetica-Bold')
+           .text(`${currency}${parseFloat(item.total).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
+                cellX, rowY + 12, { 
+                  align: 'right', 
+                  width: colWidths[3] - 20 
+                });
 
-        currentY += 25;
+        currentY += rowHeight;
         rowIndex++;
+        doc.font('Helvetica'); // Reset font
       });
 
       // Table bottom border
@@ -521,58 +579,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       currentY += 20;
 
-      // Summary section
-      const summaryStartX = pageWidth - 250;
+      // Enhanced summary section with better styling
+      const summaryStartX = pageWidth - 280;
+      const summaryWidth = 250;
       const currency = bill.currency === 'INR' ? '₹' : 'BD ';
       
-      doc.fontSize(10)
-         .font('Helvetica');
+      // Summary box background
+      doc.rect(summaryStartX - 10, currentY, summaryWidth, 140)
+         .fill('#F8F9FA')
+         .stroke('#E0E0E0');
+      
+      currentY += 15;
+      
+      doc.fontSize(11)
+         .font('Helvetica')
+         .fillColor(primaryColor);
 
       const summaryItems = [
         { label: 'Subtotal:', value: parseFloat(bill.subtotal) },
         { label: 'Making Charges:', value: parseFloat(bill.makingCharges) },
         { label: `${bill.currency === 'BHD' ? 'VAT' : 'GST'}:`, value: parseFloat(bill.gst) },
-        { label: 'Discount:', value: -parseFloat(bill.discount) }
+        { label: 'Discount:', value: parseFloat(bill.discount), isDiscount: true }
       ];
 
       summaryItems.forEach((item, index) => {
-        const y = currentY + (index * 18);
-        doc.text(item.label, summaryStartX, y)
-           .text(`${currency}${Math.abs(item.value).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
-                summaryStartX + 80, y, { align: 'right', width: 120 });
+        const y = currentY + (index * 22);
+        const labelX = summaryStartX;
+        const valueX = summaryStartX + 140;
+        
+        doc.text(item.label, labelX, y);
+        
+        let valueText;
+        if (item.isDiscount && item.value > 0) {
+          valueText = `-${currency}${item.value.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+          doc.fillColor('#D32F2F'); // Red for discount
+        } else {
+          valueText = `${currency}${Math.abs(item.value).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+          doc.fillColor(primaryColor);
+        }
+        
+        doc.text(valueText, valueX, y, { align: 'right', width: 90 });
       });
 
-      currentY += summaryItems.length * 18 + 10;
+      currentY += summaryItems.length * 22 + 15;
 
-      // Total line
-      doc.rect(summaryStartX - 10, currentY - 5, 210, 25)
+      // Enhanced total line with gradient effect
+      doc.rect(summaryStartX - 5, currentY - 5, summaryWidth - 10, 35)
          .fill(darkGray);
 
       doc.fillColor('#FFFFFF')
-         .fontSize(12)
+         .fontSize(14)
          .font('Helvetica-Bold')
-         .text('TOTAL:', summaryStartX, currentY + 5)
+         .text('TOTAL AMOUNT:', summaryStartX + 5, currentY + 10);
+         
+      doc.fontSize(16)
          .text(`${currency}${parseFloat(bill.total).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
-              summaryStartX + 80, currentY + 5, { align: 'right', width: 120 });
+              summaryStartX + 140, currentY + 8, { align: 'right', width: 90 });
 
-      currentY += 40;
+      currentY += 50;
 
-      // Payment information
-      doc.fontSize(10)
-         .fillColor(primaryColor)
+      // Enhanced payment information section
+      const paymentBoxY = currentY;
+      const paymentBoxHeight = 60;
+      
+      doc.rect(margin, paymentBoxY, contentWidth, paymentBoxHeight)
+         .fill('#F0F8FF')
+         .stroke('#B0C4DE');
+
+      doc.fontSize(11)
+         .fillColor(darkGray)
          .font('Helvetica-Bold')
-         .text('Payment Method:', margin, currentY)
+         .text('PAYMENT DETAILS', margin + 15, paymentBoxY + 15);
+
+      doc.fontSize(10)
          .font('Helvetica')
-         .text(bill.paymentMethod, margin + 100, currentY);
+         .fillColor(primaryColor)
+         .text('Payment Method:', margin + 15, paymentBoxY + 35)
+         .font('Helvetica-Bold')
+         .text(bill.paymentMethod || 'Cash', margin + 120, paymentBoxY + 35);
 
       if (bill.paidAmount) {
-        doc.text('Amount Paid:', margin, currentY + 15)
+        doc.font('Helvetica')
+           .text('Amount Paid:', margin + 300, paymentBoxY + 35)
+           .font('Helvetica-Bold')
            .text(`${currency}${parseFloat(bill.paidAmount).toLocaleString('en-IN', {minimumFractionDigits: 2})}`, 
-                margin + 100, currentY + 15);
+                margin + 380, paymentBoxY + 35);
       }
 
-      // Footer section
-      const footerY = doc.page.height - 100;
+      currentY += paymentBoxHeight + 20;
+
+      // Footer section with enhanced styling
+      const footerY = doc.page.height - 120;
       
       doc.rect(0, footerY - 10, pageWidth, 60)
          .fill('#F8F9FA');
